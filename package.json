@@ -1,0 +1,11 @@
+{
+    "scripts": {
+        "start": "concurrently \"cd frontend && bun run dev\" \"cd backend && bun run dev\"",
+        "server": "nodemon server.js",
+        "client": "cd client && npm start"
+    },
+    "dependencies": {},
+    "devDependencies": {
+        "concurrently": "^8.2.2"
+    }
+}

@@ -1,0 +1,11 @@
+node_modules
+/full_app.zip
+/full_app
+.env
+backup.json
+backend/uploads
+backend/node_modules
+backend/.gitignore
+frontend/node_modules
+frontend/.gitignore
+/bun.lockb
