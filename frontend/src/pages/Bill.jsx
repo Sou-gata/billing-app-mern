@@ -26,20 +26,37 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         padding: 2,
     },
+    products2: {
+        borderRightWidth: 1,
+        alignItems: "flex-end",
+        justifyContent: "center",
+        padding: 2,
+    },
     totalBoxs: {
         alignItems: "center",
         justifyContent: "center",
+        paddingVertical: 3,
+    },
+    totalBoxs2: {
+        alignItems: "flex-end",
+        justifyContent: "center",
+        paddingVertical: 3,
+        borderRightWidth: 1,
+        paddingRight: 2,
     },
 });
-const d = new Date();
-const pad = (num) => {
-    return num < 10 ? "0" + num : num + "";
-};
 // Create Document Component
 const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }) => {
     const [data, setData] = useState({ rows, subTotal, finalTotal, delivery, date, partyDetails });
+    const [isSameUnit, setIsSameUnit] = useState(true);
+
     useEffect(() => {
         setData({ rows, subTotal, finalTotal, delivery, date, partyDetails });
+        let a = true;
+        for (let i = 0; i < rows.length - 1; i++) {
+            a = a && rows[i].unit?.toUpperCase() === rows[i + 1].unit?.toUpperCase();
+        }
+        setIsSameUnit(a);
     }, [rows, subTotal, finalTotal, delivery, date, partyDetails]);
     return (
         <Document>
@@ -100,7 +117,7 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                 >
                     <Text style={{ fontSize: 11 }}>PARTY DETAILS</Text>
                     <Text style={{ fontSize: 11 }}>
-                        {formatDate(date)} &nbsp; {formatTime(new Date())}
+                        {formatDate(date)} &nbsp; {formatTime(date)}
                     </Text>
                 </View>
                 <View
@@ -111,9 +128,12 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                         paddingVertical: 5,
                         borderTopWidth: 0,
                         maxHeight: 60,
+                        gap: 2,
                     }}
                 >
-                    <Text style={{ fontSize: 11 }}>{partyDetails || ""}</Text>
+                    <Text style={{ fontSize: 11 }}>{partyDetails.name || ""}</Text>
+                    <Text style={{ fontSize: 11 }}>Mobile: {partyDetails.mobile || ""}</Text>
+                    <Text style={{ fontSize: 11 }}>Address: {partyDetails.address || ""}</Text>
                 </View>
                 <View
                     style={{
@@ -127,11 +147,11 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                     <View style={[styles.boxes, { width: 25 }]}>
                         <Text style={{ fontSize: 10 }}>SL NO</Text>
                     </View>
-                    <View style={[styles.boxes, { width: 200 }]}>
+                    <View style={[styles.boxes, { width: 179 }]}>
                         <Text style={{ fontSize: 10 }}>Item</Text>
                     </View>
-                    <View style={[styles.boxes, { width: 80 }]}>
-                        <Text style={{ fontSize: 10 }}>SPECIFICATION</Text>
+                    <View style={[styles.boxes, { width: 50 }]}>
+                        <Text style={{ fontSize: 10 }}>SKU</Text>
                     </View>
                     <View style={[styles.boxes, { width: 35 }]}>
                         <Text style={{ fontSize: 10 }}>Unit</Text>
@@ -145,13 +165,13 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                     <View style={[styles.boxes, { width: 31 }]}>
                         <Text style={{ fontSize: 10 }}>Gst %</Text>
                     </View>
-                    <View style={[styles.boxes, { width: 47 }]}>
+                    <View style={[styles.boxes, { width: 64 }]}>
                         <Text style={{ fontSize: 10 }}>Value</Text>
                     </View>
-                    <View style={[styles.boxes, { width: 42 }]}>
+                    <View style={[styles.boxes, { width: 59 }]}>
                         <Text style={{ fontSize: 10 }}>GST Rs.</Text>
                     </View>
-                    <View style={[styles.boxes, { width: 47, borderLeftWidth: 0 }]}>
+                    <View style={[styles.boxes, { width: 64, borderLeftWidth: 0 }]}>
                         <Text style={{ fontSize: 10 }}>Total</Text>
                     </View>
                 </View>
@@ -169,11 +189,13 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                             <View style={[styles.products, { width: 25, borderLeftWidth: 0 }]}>
                                 <Text style={{ fontSize: 10 }}>{index + 1}</Text>
                             </View>
-                            <View style={[styles.products, { width: 200 }]}>
+                            <View
+                                style={[styles.products, { width: 179, alignItems: "flex-start" }]}
+                            >
                                 <Text style={{ fontSize: 10 }}>{row.item || ""}</Text>
                             </View>
-                            <View style={[styles.products, { width: 80 }]}>
-                                <Text style={{ fontSize: 10 }}>{row?.specification || ""}</Text>
+                            <View style={[styles.products, { width: 50 }]}>
+                                <Text style={{ fontSize: 10 }}>{row?.sku || ""}</Text>
                             </View>
                             <View style={[styles.products, { width: 35 }]}>
                                 <Text style={{ fontSize: 10 }}>{row?.unit || ""}</Text>
@@ -187,14 +209,14 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                             <View style={[styles.products, { width: 31 }]}>
                                 <Text style={{ fontSize: 10 }}>{row.gst || 0}</Text>
                             </View>
-                            <View style={[styles.products, { width: 47 }]}>
-                                <Text style={{ fontSize: 10 }}>{row.value || 0}</Text>
+                            <View style={[styles.products2, { width: 64 }]}>
+                                <Text style={{ fontSize: 10 }}>{parseRupee(row.value) || 0}</Text>
                             </View>
-                            <View style={[styles.products, { width: 42 }]}>
-                                <Text style={{ fontSize: 10 }}>{row.gstRs || 0}</Text>
+                            <View style={[styles.products2, { width: 59 }]}>
+                                <Text style={{ fontSize: 10 }}>{parseRupee(row.gstRs) || 0}</Text>
                             </View>
-                            <View style={[styles.products, { width: 47, borderRightWidth: 0 }]}>
-                                <Text style={{ fontSize: 10 }}>{row.total || 0}</Text>
+                            <View style={[styles.products2, { width: 64, borderRightWidth: 0 }]}>
+                                <Text style={{ fontSize: 10 }}>{parseRupee(row.total) || 0}</Text>
                             </View>
                         </View>
                     ))}
@@ -203,23 +225,23 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                     style={{
                         flexDirection: "row",
                         alignItems: "center",
-                        paddingHorizontal: 5,
-                        paddingVertical: 3,
                         borderWidth: 1,
                         marginTop: -1,
                     }}
                 >
-                    <View style={[styles.totalBoxs, { width: 225 }]}>
+                    <View style={[styles.totalBoxs, { width: 205 }]}>
                         <Text style={{ fontSize: 11 }}>SUBTOTAL</Text>
                     </View>
-                    <View style={[styles.totalBoxs, { width: 80 }]}>
+                    <View style={[styles.totalBoxs, { width: 50 }]}>
                         <Text style={{ fontSize: 10 }}></Text>
                     </View>
                     <View style={[styles.totalBoxs, { width: 35 }]}>
                         <Text style={{ fontSize: 10 }}></Text>
                     </View>
                     <View style={[styles.totalBoxs, { width: 30 }]}>
-                        <Text style={{ fontSize: 10 }}>{data.subTotal.quantity}</Text>
+                        <Text style={{ fontSize: 10 }}>
+                            {isSameUnit ? data.subTotal.quantity : ""}
+                        </Text>
                     </View>
                     <View style={[styles.totalBoxs, { width: 47 }]}>
                         <Text style={{ fontSize: 10 }}></Text>
@@ -227,13 +249,13 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                     <View style={[styles.totalBoxs, { width: 31 }]}>
                         <Text style={{ fontSize: 10 }}></Text>
                     </View>
-                    <View style={[styles.totalBoxs, { width: 47 }]}>
+                    <View style={[styles.totalBoxs2, { width: 64 }]}>
                         <Text style={{ fontSize: 10 }}>{parseRupee(data.subTotal.value)}</Text>
                     </View>
-                    <View style={[styles.totalBoxs, { width: 42 }]}>
+                    <View style={[styles.totalBoxs2, { width: 59 }]}>
                         <Text style={{ fontSize: 10 }}>{parseRupee(data.subTotal.gstRs)}</Text>
                     </View>
-                    <View style={[styles.totalBoxs, { width: 47 }]}>
+                    <View style={[styles.totalBoxs2, { width: 64, borderRightWidth: 0 }]}>
                         <Text style={{ fontSize: 10 }}>{parseRupee(data.subTotal.total)}</Text>
                     </View>
                 </View>
@@ -241,19 +263,15 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                     style={{
                         flexDirection: "row",
                         alignItems: "center",
-                        paddingHorizontal: 5,
-                        paddingVertical: 3,
                         borderWidth: 1,
                         borderTopWidth: 0,
                         marginTop: -1,
                     }}
                 >
-                    <View style={[styles.totalBoxs, { width: 265 }]}>
-                        <Text style={{ fontSize: 11 }}>
-                            Packing & Forwarding UP TO KOLKATA DELIVERY POINT
-                        </Text>
+                    <View style={[styles.totalBoxs, { width: 205 }]}>
+                        <Text style={{ fontSize: 11 }}>Packing & Forwarding Charges</Text>
                     </View>
-                    <View style={[styles.totalBoxs, { width: 40 }]}>
+                    <View style={[styles.totalBoxs, { width: 50 }]}>
                         <Text style={{ fontSize: 10 }}></Text>
                     </View>
                     <View style={[styles.totalBoxs, { width: 35 }]}>
@@ -266,19 +284,56 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                         <Text style={{ fontSize: 10 }}></Text>
                     </View>
                     <View style={[styles.totalBoxs, { width: 31 }]}>
-                        <Text style={{ fontSize: 10 }}>{parseRupee(data.delivery.gst)}</Text>
+                        <Text style={{ fontSize: 10 }}>{data.delivery.gst}</Text>
                     </View>
-                    <View style={[styles.totalBoxs, { width: 47 }]}>
+                    <View style={[styles.totalBoxs2, { width: 64 }]}>
                         <Text style={{ fontSize: 10 }}>{parseRupee(data.delivery.value)}</Text>
                     </View>
-                    <View style={[styles.totalBoxs, { width: 42 }]}>
+                    <View style={[styles.totalBoxs2, { width: 59 }]}>
                         <Text style={{ fontSize: 10 }}>{parseRupee(data.delivery.gstRs)}</Text>
                     </View>
-                    <View style={[styles.totalBoxs, { width: 47 }]}>
+                    <View style={[styles.totalBoxs2, { width: 64, borderRight: 0 }]}>
                         <Text style={{ fontSize: 10 }}>{parseRupee(data.delivery.total)}</Text>
                     </View>
                 </View>
                 <View
+                    style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        borderWidth: 1,
+                        borderTopWidth: 0,
+                        marginTop: -1,
+                    }}
+                >
+                    <View style={[styles.totalBoxs, { width: 205 }]}>
+                        <Text style={{ fontSize: 11 }}>GRAND TOTAL</Text>
+                    </View>
+                    <View style={[styles.totalBoxs, { width: 50 }]}>
+                        <Text style={{ fontSize: 10 }}></Text>
+                    </View>
+                    <View style={[styles.totalBoxs, { width: 35 }]}>
+                        <Text style={{ fontSize: 10 }}></Text>
+                    </View>
+                    <View style={[styles.totalBoxs, { width: 30 }]}>
+                        <Text style={{ fontSize: 10 }}></Text>
+                    </View>
+                    <View style={[styles.totalBoxs, { width: 47 }]}>
+                        <Text style={{ fontSize: 10 }}></Text>
+                    </View>
+                    <View style={[styles.totalBoxs, { width: 31 }]}>
+                        <Text style={{ fontSize: 10 }}></Text>
+                    </View>
+                    <View style={[styles.totalBoxs2, { width: 64 }]}>
+                        <Text style={{ fontSize: 10 }}>{parseRupee(data.finalTotal.value)}</Text>
+                    </View>
+                    <View style={[styles.totalBoxs2, { width: 59 }]}>
+                        <Text style={{ fontSize: 10 }}>{parseRupee(data.finalTotal.gstRs)}</Text>
+                    </View>
+                    <View style={[styles.totalBoxs2, { width: 64, borderRightWidth: 0 }]}>
+                        <Text style={{ fontSize: 10 }}>{parseRupee(data.finalTotal.total)}</Text>
+                    </View>
+                </View>
+                {/* <View
                     style={{
                         flexDirection: "row",
                         alignItems: "center",
@@ -289,34 +344,15 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                         marginTop: -1,
                     }}
                 >
-                    <View style={[styles.totalBoxs, { width: 225 }]}>
-                        <Text style={{ fontSize: 11 }}>GRAND TOTAL</Text>
+                    <View style={[styles.totalBoxs, { width: 125 }]}>
+                        <Text style={{ fontSize: 11 }}>Payble amount in word:</Text>
                     </View>
-                    <View style={[styles.totalBoxs, { width: 80 }]}>
-                        <Text style={{ fontSize: 10 }}></Text>
+                    <View style={[styles.totalBoxs, { width: 459, textAlign: "left" }]}>
+                        <Text style={{ fontSize: 10 }}>
+                            {numberToWord(data.finalTotal.total)} only
+                        </Text>
                     </View>
-                    <View style={[styles.totalBoxs, { width: 35 }]}>
-                        <Text style={{ fontSize: 10 }}></Text>
-                    </View>
-                    <View style={[styles.totalBoxs, { width: 30 }]}>
-                        <Text style={{ fontSize: 10 }}></Text>
-                    </View>
-                    <View style={[styles.totalBoxs, { width: 47 }]}>
-                        <Text style={{ fontSize: 10 }}></Text>
-                    </View>
-                    <View style={[styles.totalBoxs, { width: 31 }]}>
-                        <Text style={{ fontSize: 10 }}></Text>
-                    </View>
-                    <View style={[styles.totalBoxs, { width: 47 }]}>
-                        <Text style={{ fontSize: 10 }}>{parseRupee(data.finalTotal.value)}</Text>
-                    </View>
-                    <View style={[styles.totalBoxs, { width: 42 }]}>
-                        <Text style={{ fontSize: 10 }}>{parseRupee(data.finalTotal.gstRs)}</Text>
-                    </View>
-                    <View style={[styles.totalBoxs, { width: 47 }]}>
-                        <Text style={{ fontSize: 10 }}>{parseRupee(data.finalTotal.total)}</Text>
-                    </View>
-                </View>
+                </View> */}
                 <View
                     style={{
                         padding: 10,

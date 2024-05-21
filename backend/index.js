@@ -22,6 +22,9 @@ app.use("/api/v1/bills", billRoutes);
 app.get("*", (req, res) => {
     res.sendFile(path.join(__dirname, "public"));
 });
+app.get("/*", (req, res) => {
+    res.sendFile(path.join(__dirname, "public"));
+});
 
 // 404 handlers
 app.post("*", (req, res) => {
@@ -32,7 +35,7 @@ require("./db/connectDB")()
     .then(() => {
         app.listen(PORT, () => {
             console.log(`⚙️  Server is running on http://localhost:${PORT}`);
-            // require("child_process").exec(`start http://localhost:${PORT}/`);
+            require("child_process").exec(`start http://localhost:${PORT}/`);
         });
     })
     .catch((err) => {

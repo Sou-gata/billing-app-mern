@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
 import axios from "axios";
+import { baseProductsUrl } from "../utils";
 
 const Context = createContext();
 
@@ -7,7 +8,7 @@ const ContextProvider = ({ children }) => {
     const [data, setData] = useState([]);
     useEffect(() => {
         (async () => {
-            const temp = await axios.get("http://localhost:7684/api/v1/products/all");
+            const temp = await axios.get(baseProductsUrl + "/all");
             let tempData = await temp.data;
             if (tempData.success) {
                 setData(tempData.data);

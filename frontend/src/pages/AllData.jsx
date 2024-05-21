@@ -3,6 +3,7 @@ import { Context } from "../data/Context";
 import { Input, Modal } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
+import { baseProductsUrl } from "../utils";
 
 const AllData = () => {
     const { data, setData } = useContext(Context);
@@ -54,21 +55,17 @@ const AllData = () => {
                 </div>
                 {searchData.length > 0 && (
                     <div className="border-b border-b-black font-bold flex py-2">
-                        <p className="w-[45px] border-r text-center">SL</p>
-                        <p className="w-[550px] border-r text-center cursor-pointer hover:text-blue-700">
+                        <p className="w-[75px] border-r text-center">SL</p>
+                        <p className="w-[650px] border-r text-center cursor-pointer hover:text-blue-700">
                             ITEM
                         </p>
-                        <p className="w-[60px] border-r text-center">GST</p>
-                        <p className="w-[100px] border-r text-center">CP</p>
-                        <p className="w-[100px] border-r text-center">AMOUNT</p>
+                        <p className="w-[100px] border-r text-center">GST</p>
+                        <p className="w-[100px] border-r text-center">Rate</p>
                         <p className="w-[100px] border-r text-center">QUANTITY</p>
-                        <p className="w-[100px] border-r text-center">GROUP</p>
-                        <p className="w-[100px] border-r text-center">HSN</p>
-                        <p className="w-[100px] border-r text-center">BRAND</p>
-                        <p className="w-[100px] border-r text-center">SKU</p>
-                        <div className="flex items-center justify-center gap-5 w-32">
-                            <p>ACTION</p>
-                        </div>
+                        <p className="w-[150px] border-r text-center">SKU</p>
+                        <p className="w-[100px] border-r text-center">View</p>
+                        <p className="w-[100px] border-r text-center">Edit</p>
+                        <p className="w-[100px] text-center">Delete</p>
                     </div>
                 )}
                 {searchData.length === 0 && search && (
@@ -88,34 +85,34 @@ const AllData = () => {
             {searchData.map((d, i) => {
                 return (
                     <div key={i} className="border-b py-2 flex">
-                        <p className="w-[45px] border-r text-center">{i + 1}</p>
+                        <p className="w-[75px] border-r text-center">{i + 1}</p>
                         <Link
                             to={"/product/" + d._id + "?search=" + search}
-                            className="w-[550px] border-r text-center cursor-pointer hover:text-blue-700"
+                            className="w-[650px] border-r text-center cursor-pointer hover:text-blue-700"
                         >
                             {d.value}
                         </Link>
-                        <p className="w-[60px] border-r text-center">{d.gst}</p>
+                        <p className="w-[100px] border-r text-center">{d.gst}</p>
                         <p className="w-[100px] border-r text-center">{d.cp}</p>
-                        <p className="w-[100px] border-r text-center">{d.amount}</p>
                         <p className="w-[100px] border-r text-center">{d.quantity}</p>
-                        <p className="w-[100px] border-r text-center">{d.group}</p>
-                        <p className="w-[100px] border-r text-center">{d.hsn}</p>
-                        <p className="w-[100px] border-r text-center">{d.brand}</p>
-                        <p className="w-[100px] border-r text-center">{d.sku}</p>
-                        <div className="flex items-center justify-center gap-5 w-32">
+                        <p className="w-[150px] border-r text-center">{d.sku}</p>
+                        <div className="flex items-center justify-center w-[100px] border-r">
                             <Link
                                 className="cursor-pointer"
                                 to={"/product/" + d._id + "?search=" + search}
                             >
                                 <img src="/eye.svg" className="w-5 h-5" alt="view" />
                             </Link>
+                        </div>
+                        <div className="flex items-center justify-center w-[100px] border-r">
                             <Link
                                 className="cursor-pointer"
                                 to={"/edit/" + d._id + "?search=" + search}
                             >
                                 <img src="/edit.svg" className="w-5 h-5" alt="edit" />
                             </Link>
+                        </div>
+                        <div className="flex items-center justify-center w-[100px]">
                             <button
                                 className="cursor-pointer"
                                 onClick={() => {
@@ -135,12 +132,10 @@ const AllData = () => {
                 }}
                 onOk={async () => {
                     try {
-                        let res = await axios.delete(
-                            `http://localhost:7684/api/v1/products/delete/${isOpen.id}`
-                        );
+                        let res = await axios.delete(`${baseProductsUrl}/delete/${isOpen.id}`);
                         if (res.data.success) {
                             setIsOpen({ state: false, id: "" });
-                            let temp = await axios.get("http://localhost:7684/api/v1/products/all");
+                            let temp = await axios.get(baseProductsUrl + "/all");
                             let tempData = temp.data;
                             if (tempData.success) {
                                 setData(tempData.data);

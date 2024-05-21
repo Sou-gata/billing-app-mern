@@ -16,36 +16,9 @@ const ProductSchema = new mongoose.Schema(
             type: Number,
             required: true,
         },
-        amount: {
-            type: Number,
-        },
-        location: {
-            type: String,
-        },
-        entry: {
-            type: String,
-        },
-        group: {
-            type: String,
-        },
-        category: {
-            type: String,
-        },
         gst: {
             type: Number,
             required: true,
-        },
-        hsn: {
-            type: Number,
-        },
-        brand: {
-            type: String,
-        },
-        specification: {
-            type: String,
-        },
-        id: {
-            type: String,
         },
         sku: {
             type: String,

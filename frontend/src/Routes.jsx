@@ -11,6 +11,7 @@ import EditProduct from "./pages/EditProduct";
 import { NotFound } from "./pages/NotFound";
 import SavedBills from "./pages/SavedBills";
 import ViewBill from "./pages/ViewBill";
+import EditBill from "./pages/EditBill";
 
 const Routes = () => {
     return (
@@ -25,6 +26,7 @@ const Routes = () => {
                 <Route path="/add-product" element={<AddSingleProduct />} />
                 <Route path="/saved-bills" element={<SavedBills />} />
                 <Route path="/bill/:id" element={<ViewBill />} />
+                <Route path="/edit-bill" element={<EditBill />} />
 
                 <Route path="*" element={<NotFound />} />
             </Route>

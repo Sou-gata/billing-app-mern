@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import axios from "axios";
+import { baseProductsUrl } from "../utils";
 
 const Product = () => {
     const { id } = useParams();
@@ -12,7 +13,7 @@ const Product = () => {
     const [selected, setSelected] = useState({});
     useEffect(() => {
         (async () => {
-            const temp = await axios.get(`http://localhost:7684/api/v1/products/${id}`);
+            const temp = await axios.get(`${baseProductsUrl}/${id}`);
             let tempData = await temp.data;
             if (tempData.success) {
                 setSelected(tempData.data);
@@ -27,15 +28,18 @@ const Product = () => {
             >
                 Back
             </Link>
-            <table>
+            <table className="min-w-[45vw]">
                 {Object.keys(selected).map((key, i) => {
+                    console.log(key);
                     if (key != "_id" && key != "__v" && key != "createdAt" && key != "updatedAt")
                         return (
                             <tr key={i} className="uppercase mt-2 border border-black">
-                                <td className="font-bold px-2 py-1">
+                                <td className="font-bold px-2 py-1 w-1/4">
                                     {key == "value" ? "item" : key}
                                 </td>
-                                <td className="px-2 py-1 border-l border-black">{selected[key]}</td>
+                                <td className="px-2 py-1 border-l border-black w-3/4">
+                                    {selected[key]}
+                                </td>
                             </tr>
                         );
                     else return null;

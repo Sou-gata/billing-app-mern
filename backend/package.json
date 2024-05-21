@@ -5,13 +5,18 @@
     "main": "index.js",
     "scripts": {
         "start": "node index.js",
-        "dev": "nodemon index.js"
+        "dev": "nodemon index.js --ignore *.json"
     },
     "keywords": [],
     "author": "",
     "license": "ISC",
     "devDependencies": {
         "nodemon": "^3.1.0"
+    },
+    "nodemnoConfig": {
+        "ignore": [
+            "*.json"
+        ]
     },
     "dependencies": {
         "cors": "^2.8.5",

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, message, Upload, Select, Modal } from "antd";
 import axios from "axios";
+import { baseProductsUrl } from "../utils";
 
 const ImportExcel = () => {
     const [uploading, setUploading] = useState(false);
@@ -16,7 +17,7 @@ const ImportExcel = () => {
     const pad = (n) => (n < 10 ? "0" + n : n);
     const deleteAll = async () => {
         try {
-            const res = await axios.delete("http://localhost:7684/api/v1/products/delete/all");
+            const res = await axios.delete(baseProductsUrl + "/delete/all");
             return res.data;
         } catch (error) {}
     };
@@ -26,15 +27,11 @@ const ImportExcel = () => {
             formData.append("file", file);
         });
         try {
-            const res = await axios.post(
-                "http://localhost:7684/api/v1/products/add/excel",
-                formData,
-                {
-                    headers: {
-                        "Content-Type": "multipart/form-data",
-                    },
-                }
-            );
+            const res = await axios.post(baseProductsUrl + "/add/excel", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
             if (res.data?.success) {
                 setFileList([]);
                 message.success("upload successfully.");
@@ -60,7 +57,7 @@ const ImportExcel = () => {
             await addData();
         } else if (selected === "over") {
             try {
-                let res = await axios.get("http://localhost:7684/api/v1/products/backup-present");
+                let res = await axios.get(baseProductsUrl + "/backup-present");
                 if (res.data.success && res.data.message !== "Backup not present") {
                     let date = new Date(res.data.data.mtime);
                     let day = date.getDate();

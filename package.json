@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "start": "concurrently \"cd frontend && bun run dev\" \"cd backend && bun run dev\"",
+        "dev": "concurrently \"cd frontend && yarn dev\" \"cd backend && yarn dev\"",
         "server": "nodemon server.js",
         "client": "cd client && npm start"
     },

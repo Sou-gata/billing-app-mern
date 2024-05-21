@@ -13,3 +13,7 @@ input[type="number"] {
     -moz-appearance: textfield;
     appearance: textfield;
 }
+.ant-select-item-option-active {
+    background: rgba(59, 131, 246, 1) !important;
+    color: white !important;
+}

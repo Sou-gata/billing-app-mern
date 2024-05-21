@@ -29,12 +29,11 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                     let gstRs = option?.gst * 0.01 * value;
                     let total = value + gstRs;
                     let temp = [...rowsData];
-                    for (let i = 0; i < temp.length; i++) {
+                    for (let i = temp.length - 1; i >= 0; i--) {
                         if (temp[i].id === row.id) {
                             temp[i] = {
                                 ...rowsData[i],
                                 item: option["value"],
-                                specification: option?.specification || "",
                                 unit: option?.unit || "",
                                 rate: option?.cp || 0,
                                 gst: option.gst || 0,
@@ -45,6 +44,7 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                                 sku: option.sku,
                                 dbId: option._id,
                             };
+                            break;
                         }
                     }
                     setRows(temp);
@@ -54,16 +54,17 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                 style={{
                     width: 120,
                 }}
-                placeholder="Specification"
-                value={row?.specification}
+                placeholder="SKU"
+                value={row?.sku}
                 onChange={(e) => {
                     let temp = [...rowsData];
-                    for (let i = 0; i < temp.length; i++) {
+                    for (let i = temp.length - 1; i >= 0; i--) {
                         if (temp[i].id === row.id) {
                             temp[i] = {
                                 ...temp[i],
-                                specification: e.target.value,
+                                sku: e.target.value,
                             };
+                            break;
                         }
                     }
                     setRows(temp);
@@ -77,12 +78,13 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                 value={row?.unit}
                 onChange={(e) => {
                     let temp = [...rowsData];
-                    for (let i = 0; i < temp.length; i++) {
+                    for (let i = temp.length - 1; i >= 0; i--) {
                         if (temp[i].id === row.id) {
                             temp[i] = {
                                 ...temp[i],
                                 unit: e.target.value,
                             };
+                            break;
                         }
                     }
                     setRows(temp);
@@ -97,11 +99,11 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                 type="number"
                 onChange={(e) => {
                     let temp = [...rowsData];
-                    for (let i = 0; i < temp.length; i++) {
+                    for (let i = temp.length - 1; i >= 0; i--) {
                         if (temp[i].id === row.id) {
-                            let quantity = parseInt(e.target.value);
-                            let value = row.rate * quantity;
-                            let gstRs = row.gst * value;
+                            let quantity = e.target.value;
+                            let value = row.rate * parseFloat(quantity);
+                            let gstRs = row.gst * 0.01 * value;
                             let total = value + gstRs;
                             temp[i] = {
                                 ...temp[i],
@@ -110,6 +112,7 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                                 gstRs: parseNumber(gstRs),
                                 total: parseNumber(total),
                             };
+                            break;
                         }
                     }
                     setRows(temp);
@@ -124,11 +127,11 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                 value={row?.rate}
                 onChange={(e) => {
                     let temp = [...rowsData];
-                    for (let i = 0; i < temp.length; i++) {
+                    for (let i = temp.length - 1; i >= 0; i--) {
                         if (temp[i].id === row.id) {
                             let rate = e.target.value;
                             let value = rate * row.quantity;
-                            let gstRs = row.gst * value;
+                            let gstRs = row.gst * 0.01 * value;
                             let total = value + gstRs;
                             temp[i] = {
                                 ...temp[i],
@@ -137,6 +140,7 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                                 gstRs: parseNumber(gstRs),
                                 total: parseNumber(total),
                             };
+                            break;
                         }
                     }
                     setRows(temp);
@@ -151,11 +155,11 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                 type="number"
                 onChange={(e) => {
                     let temp = [...rowsData];
-                    for (let i = 0; i < temp.length; i++) {
+                    for (let i = temp.length - 1; i >= 0; i--) {
                         if (temp[i].id === row.id) {
                             let gst = e.target.value;
                             let value = row.rate * row.quantity;
-                            let gstRs = gst * value;
+                            let gstRs = gst * 0.01 * value;
                             let total = value + gstRs;
                             temp[i] = {
                                 ...temp[i],
@@ -164,6 +168,7 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                                 gstRs: parseNumber(gstRs),
                                 total: parseNumber(total),
                             };
+                            break;
                         }
                     }
                     setRows(temp);
@@ -178,10 +183,10 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                 value={row.value}
                 onChange={(e) => {
                     let temp = [...rowsData];
-                    for (let i = 0; i < temp.length; i++) {
+                    for (let i = temp.length - 1; i >= 0; i--) {
                         if (temp[i].id === row.id) {
                             let value = e.target.value;
-                            let gstRs = row.gst * value;
+                            let gstRs = row.gst * 0.01 * value;
                             let total = value + gstRs;
                             temp[i] = {
                                 ...temp[i],
@@ -190,6 +195,7 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                                 total: parseNumber(total),
                             };
                         }
+                        break;
                     }
                     setRows(temp);
                 }}
@@ -203,7 +209,7 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                 value={row.gstRs}
                 onChange={(e) => {
                     let temp = [...rowsData];
-                    for (let i = 0; i < temp.length; i++) {
+                    for (let i = temp.length - 1; i >= 0; i--) {
                         if (temp[i].id === row.id) {
                             let gstRs = e.target.value;
                             let total = row.value + gstRs;
@@ -213,6 +219,7 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                                 total: parseNumber(total),
                             };
                         }
+                        break;
                     }
                     setRows(temp);
                 }}
@@ -226,13 +233,14 @@ const Row = ({ row, rowsData, serial, setRows }) => {
                 type="number"
                 onChange={(e) => {
                     let temp = [...rowsData];
-                    for (let i = 0; i < temp.length; i++) {
+                    for (let i = temp.length - 1; i >= 0; i--) {
                         if (temp[i].id === row.id) {
                             temp[i] = {
                                 ...temp[i],
                                 total: parseNumber(e.target.value),
                             };
                         }
+                        break;
                     }
                     setRows(temp);
                 }}

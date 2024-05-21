@@ -2,7 +2,7 @@ import { DatePicker, Input, Modal, Select, Space, message } from "antd";
 import React, { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import { v4 as uuid } from "uuid";
-import { formatDate, formatTime, parseRupee } from "../utils";
+import { baseBillsUrl, formatDate, formatRupee, formatTime, parseRupee } from "../utils";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { usePDF } from "@react-pdf/renderer";
@@ -22,6 +22,7 @@ const SavedBills = () => {
     const [query, setQuery] = useState("");
     const [isOpen, setIsOpen] = useState({ state: false, id: "" });
     const [isClicked, setIsClicked] = useState(false);
+    const [call, setCall] = useState(false);
 
     const searchBills = async (type, bDate, inf) => {
         if (!type) type = searchType;
@@ -29,7 +30,7 @@ const SavedBills = () => {
         if (!inf) inf = info;
         if (type == "date-range") {
             try {
-                let res = await axios.post("http://localhost:7684/api/v1/bills/search-date", {
+                let res = await axios.post(baseBillsUrl + "/search-date", {
                     date: [bDate[0].$d, bDate[1].$d],
                 });
                 if (res.data.success) {
@@ -41,7 +42,7 @@ const SavedBills = () => {
             }
         } else if (type == "date") {
             try {
-                let res = await axios.post("http://localhost:7684/api/v1/bills/search-date", {
+                let res = await axios.post(baseBillsUrl + "/search-date", {
                     date: [bDate[0].$d, bDate[1].$d],
                 });
                 if (res.data.success) {
@@ -53,7 +54,7 @@ const SavedBills = () => {
             }
         } else if (type == "mobile") {
             try {
-                let res = await axios.post("http://localhost:7684/api/v1/bills/search-mobile", {
+                let res = await axios.post(baseBillsUrl + "/search-mobile", {
                     mobile: inf.mobile,
                 });
                 if (res.data.success) {
@@ -65,7 +66,7 @@ const SavedBills = () => {
             }
         } else if (type == "name") {
             try {
-                let res = await axios.post("http://localhost:7684/api/v1/bills/search-name", {
+                let res = await axios.post(baseBillsUrl + "/search-name", {
                     name: inf.name.toLowerCase(),
                 });
                 if (res.data.success) {
@@ -77,22 +78,6 @@ const SavedBills = () => {
             }
         }
     };
-    const createQuery = () => {
-        let str = "?type=" + searchType;
-        if (searchType == "date-range" || searchType == "date") {
-            str += "&start=" + formatDate(billDates[0].$d) + "&end=" + formatDate(billDates[1].$d);
-        } else if (searchType == "mobile") {
-            str += "&mobile=" + info.mobile;
-        } else if (searchType == "name") {
-            str += "&name=" + info.name;
-        }
-        return str;
-    };
-    useEffect(() => {
-        const str = createQuery();
-        setQuery(str);
-    }, [billDates, searchType, info]);
-
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
         const type = urlParams.get("type");
@@ -105,7 +90,13 @@ const SavedBills = () => {
         }
         if (type == "date-range" || type == "date") {
             if (!start && !end) return;
-            setBillDates([dayjs(start), dayjs(end)]);
+            setBillDates((prev) => {
+                if (!isNaN(dayjs(start).$M) && !isNaN(dayjs(end).$M)) {
+                    return [dayjs(start), dayjs(end)];
+                } else {
+                    return prev;
+                }
+            });
         } else if (type == "mobile") {
             if (!mobile) return;
             setInfo((prev) => {
@@ -120,8 +111,22 @@ const SavedBills = () => {
             searchBills();
             return;
         }
-        searchBills(type, [dayjs(start), dayjs(end)], { name, mobile });
+        setCall(true);
     }, []);
+    useEffect(() => {
+        let str = "?type=" + searchType;
+        if (searchType == "date-range" || searchType == "date") {
+            str += "&start=" + formatDate(billDates[0].$d) + "&end=" + formatDate(billDates[1].$d);
+        } else if (searchType == "mobile") {
+            str += "&mobile=" + info.mobile;
+        } else if (searchType == "name") {
+            str += "&name=" + info.name;
+        }
+        setQuery(str);
+    }, [billDates, searchType, info]);
+    useEffect(() => {
+        searchBills();
+    }, [call]);
 
     const [instance, updateInstance] = usePDF({
         document: (
@@ -254,7 +259,7 @@ const SavedBills = () => {
                     </thead>
                     <tbody>
                         {bills.map((bill, index) => (
-                            <tr key={index}>
+                            <tr key={index} className="text-center">
                                 <td className="border-r border-b px-2 py-1 border-t w-[30%] border-gray-300">
                                     {bill.name}
                                 </td>
@@ -262,7 +267,7 @@ const SavedBills = () => {
                                     {bill.mobile}
                                 </td>
                                 <td className="border-r border-b px-2 py-1 border-t w-[10%] border-gray-300">
-                                    {parseRupee(bill.grandTotal.total)}
+                                    {formatRupee(bill.grandTotal.total)}
                                 </td>
                                 <td className="border-r border-b px-2 py-1 border-t border-gray-300 w-[10%]">
                                     {formatDate(bill.date)}
@@ -287,6 +292,11 @@ const SavedBills = () => {
                                                 setTimeout(() => {
                                                     let d = new Date(bill.date);
                                                     bill.subTotal.quantity = bill.subTotal.qty;
+                                                    let partyDetails = {
+                                                        name: bill.name,
+                                                        mobile: bill.mobile,
+                                                        address: bill.address,
+                                                    };
                                                     updateInstance(
                                                         <Bill
                                                             rows={bill.rows}
@@ -294,7 +304,7 @@ const SavedBills = () => {
                                                             finalTotal={bill.grandTotal}
                                                             delivery={bill.delivery}
                                                             date={d}
-                                                            partyDetails={bill.name}
+                                                            partyDetails={partyDetails}
                                                         />
                                                     );
                                                     setIsClicked(true);
@@ -308,9 +318,16 @@ const SavedBills = () => {
                                                 alt="print"
                                             />
                                         </button>
-                                        {/* <div className="bg-yellow-500 p-1 rounded-md cursor-pointer hover:bg-yellow-700">
+                                        <button
+                                            onClick={() => {
+                                                navigate("/edit-bill" + query, {
+                                                    state: { bill: bill },
+                                                });
+                                            }}
+                                            className="bg-yellow-500 p-1 rounded-md cursor-pointer hover:bg-yellow-700"
+                                        >
                                             <img className="w-4 h-4" src="/file.svg" alt="print" />
-                                        </div> */}
+                                        </button>
                                         <button
                                             onClick={() => {
                                                 setIsOpen({ state: true, id: bill._id });
@@ -338,9 +355,7 @@ const SavedBills = () => {
                 onOk={async () => {
                     try {
                         setIsOpen({ state: false, id: "" });
-                        let res = await axios.delete(
-                            `http://localhost:7684/api/v1/bills/delete/${isOpen.id}`
-                        );
+                        let res = await axios.delete(`${baseBillsUrl}/delete/${isOpen.id}`);
                         if (res.data.success) {
                             searchBills();
                             message.success("Bill deleted successfully");

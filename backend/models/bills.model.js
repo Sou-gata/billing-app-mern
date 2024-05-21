@@ -4,10 +4,14 @@ const BillSchema = new mongoose.Schema(
     {
         mobile: {
             type: String,
+            required: true,
         },
         name: {
             type: String,
             required: true,
+        },
+        address: {
+            type: String,
         },
         date: {
             type: Date,

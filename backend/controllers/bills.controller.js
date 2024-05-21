@@ -6,6 +6,12 @@ const path = require("path");
 
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
+let file = __filename;
+file = file.split("\\");
+file = file[file.length - 1];
+
+const dir = file == "index.js" ? __dirname : path.join(__dirname, "..");
+
 const addBill = async (req, res) => {
     const bill = req.body;
 
@@ -114,7 +120,7 @@ const internalBackup = async (req, res) => {
     try {
         const bills = await Bill.find().select("-__v");
         if (bills.length === 0) return res.status(400).json(new ApiError(400, "No data found"));
-        let file = path.join(__dirname, "..", "bills_backup.json");
+        let file = path.join(dir, "bills_backup.json");
         fs.writeFile(file, JSON.stringify(bills))
             .then(() => {
                 return res.status(200).json(new ApiResponse(200, "Backup created successfully"));
@@ -130,7 +136,6 @@ const internalBackup = async (req, res) => {
 
 const restoreInternalBackup = async (req, res) => {
     const fs = require("fs");
-    const dir = path.join(__dirname, "..");
     fs.readdir(dir, function (err, files) {
         if (err) {
             return res.status(500).json(new ApiError(500, "Backup not present", err));
@@ -166,6 +171,74 @@ const restoreInternalBackup = async (req, res) => {
     });
 };
 
+const editBill = async (req, res) => {
+    const { id } = req.params;
+    const data = req.body;
+
+    try {
+        const bill = await Bill.findByIdAndUpdate(id, data);
+        if (bill) {
+            return res.status(200).json(new ApiResponse(500, bill, "Bill updated successfully"));
+        } else {
+            return res.status(500).json(new ApiError(200, "No bill found with this id"));
+        }
+    } catch (error) {
+        return res.status(500).json(new ApiError(200, error.message, error));
+    }
+};
+
+const externalBackup = async (req, res) => {
+    const fs = require("fs/promises");
+    const time = Date.now();
+    try {
+        const bills = await Bill.find().select("-__v -_id -rows._id");
+        if (bills.length === 0) return res.status(400).json(new ApiError(400, "No data found"));
+        let file = path.join(dir, "bills_backup_" + time + ".json");
+        fs.writeFile(file, JSON.stringify(bills))
+            .then(() => {
+                return res.status(200).download(file);
+            })
+            .finally(() => {
+                setTimeout(() => {
+                    fs.unlink(path.join(dir, "bills_backup_" + time + ".json"));
+                }, 500);
+            });
+    } catch (error) {
+        return res.status(500).json(new ApiError(500, error.message || "No data found"));
+    }
+};
+
+const restoreExternalBackup = async (req, res) => {
+    const fs = require("fs");
+    let file = req.file;
+    const fileName = path.join(dir, "uploads", file.filename);
+    try {
+        const data = require(fileName);
+        if (data.length === 0)
+            return res.status(200).json(new ApiError(400, "No data found in this JSON"));
+        Bill.deleteMany()
+            .then(async () => {
+                const bills = await Bill.insertMany(data);
+                fs.unlink(fileName, (err) => {});
+                return res.status(201).json({
+                    status: 201,
+                    message: "Data inserted successfully",
+                    success: true,
+                    data: {
+                        acknowledged: true,
+                        addCount: bills.length,
+                    },
+                });
+            })
+            .catch((err) => {
+                // console.log(err);
+                // return res.status(200).json(new ApiError(500, "Failed to restore data", err));
+            });
+    } catch (error) {
+        return res.status(200).json(new ApiError(500, "Failed to restore data", error));
+    }
+};
+
 module.exports = {
     addBill,
     searchByDate,
@@ -176,4 +249,7 @@ module.exports = {
     deleteAll,
     internalBackup,
     restoreInternalBackup,
+    editBill,
+    externalBackup,
+    restoreExternalBackup,
 };

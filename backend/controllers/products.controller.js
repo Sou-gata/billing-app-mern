@@ -7,7 +7,11 @@ const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 const ApiError = require("../utils/apiError");
 const ApiResponse = require("../utils/apiResponse");
 
-const dir = path.join(__dirname, "..");
+let file = __filename;
+file = file.split("\\");
+file = file[file.length - 1];
+
+const dir = file == "index.js" ? __dirname : path.join(__dirname, "..");
 
 const addProduct = async (req, res) => {
     const {
@@ -282,14 +286,13 @@ const backup = async (req, res) => {
     const fs = require("fs/promises");
     try {
         const products = await Products.find().select("-__v -_id");
-        let file = path.join(__dirname, "..", "backup.json");
+        let file = path.join(dir, "backup.json");
         if (products.length === 0) return res.status(400).json(new ApiError(400, "No data found"));
         fs.writeFile(file, JSON.stringify(products))
             .then(() => {
                 return res.status(200).json(new ApiResponse(200, "Backup created successfully"));
             })
             .catch((err) => {
-                console.log(err);
                 return res.status(500).json(new ApiError(500, "Failed to create backup", err));
             });
     } catch (error) {
@@ -301,7 +304,7 @@ const backupJson = async (req, res) => {
     const fs = require("fs/promises");
     try {
         const products = await Products.find().select("-__v -_id");
-        let file = path.join(__dirname, "..", "backup_ext.json");
+        let file = path.join(dir, "backup_ext.json");
         if (products.length === 0) return res.status(400).json(new ApiError(400, "No data found"));
         fs.writeFile(file, JSON.stringify(products))
             .then(() => {
@@ -385,29 +388,25 @@ const addExcelData = async (req, res) => {
     const fs = require("fs/promises");
     try {
         const allData = XLSX.readFile(fileName);
-        const sheetName = allData.SheetNames[1];
-        let rowObject = XLSX.utils.sheet_to_json(allData.Sheets[sheetName]);
+        let sheets = allData.SheetNames;
+        let allSheetRows = [];
+        sheets.forEach((sheet, index) => {
+            let rowObject = XLSX.utils.sheet_to_json(allData.Sheets[sheet]);
+            allSheetRows = [...allSheetRows, ...rowObject];
+        });
         let products = [];
-        for (let product of rowObject) {
-            if (product["ITEM"] === undefined) continue;
-            if (product["GST %"] === undefined) continue;
-            if (product["RATE"] === undefined && product["CP"] === undefined) continue;
+        for (let product of allSheetRows) {
+            if (!product["ITEM"]) continue;
+            if (!product["GST %"]) continue;
+            if (!product["RATE"] && !product["CP"]) continue;
+            if (!product["SKU NO "] && !product["SKU NO"]) continue;
             products.push({
                 value: product["ITEM"].toUpperCase(),
                 cp: product["RATE"] || product["CP"],
                 gst: product["GST %"],
-                sku: (product["SKU NO "] || product["SKU NO"]).toUpperCase(),
+                sku: (product["SKU NO "] || product["SKU NO"])?.toUpperCase(),
                 unit: product["UNIT"],
-                quantity: product["QTY"],
-                amount: product["AMOUNT"] || product["AMT"],
-                location: product["ROOM"] || product["LOCATION"],
-                entry: product["ENTRY BY"],
-                group: product["GROUP"],
-                category: product["Stcok Category"],
-                hsn: product["HSN"],
-                brand: product["BRAND"],
-                specification: product["SPECIFICATION"],
-                id: product["PRODUCT ID"],
+                quantity: isNaN(parseFloat(product["QTY"])) ? 1 : parseFloat(product["QTY"]),
             });
         }
         if (products.length === 0) return res.status(400).json(new ApiError(400, "No data found"));
@@ -422,6 +421,7 @@ const addExcelData = async (req, res) => {
             },
         });
     } catch (error) {
+        // console.log(error);
         return res.status(500).json(new ApiError(500, "Failed to add products", error));
     } finally {
         fs.unlink(fileName)
@@ -452,10 +452,9 @@ const restoreJSON = async (req, res) => {
                 });
             })
             .catch((err) => {
-                console.log(err);
+                return res.status(200).json(new ApiError(500, "Failed to restore data", err));
             });
     } catch (error) {
-        console.log(error);
         return res.status(200).json(new ApiError(500, "Failed to restore data", error));
     }
 };

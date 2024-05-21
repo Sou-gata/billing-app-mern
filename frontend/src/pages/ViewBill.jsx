@@ -1,7 +1,7 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { formatDate, formatTime } from "../utils";
+import { baseBillsUrl, formatDate, formatRupee, formatTime, parseRupee } from "../utils";
 import { message } from "antd";
 
 const ViewBill = () => {
@@ -15,7 +15,7 @@ const ViewBill = () => {
     useEffect(() => {
         (async () => {
             try {
-                let res = await axios.get(`http://localhost:7684/api/v1/bills/${id}`);
+                let res = await axios.get(`${baseBillsUrl}/${id}`);
                 if (res.data.success) {
                     res = res.data.data;
                     setBill(res);
@@ -54,6 +54,12 @@ const ViewBill = () => {
                 </div>
                 <div className="flex items-center gap-2">
                     <p>
+                        <b>Address: </b>
+                    </p>
+                    <p>{bill?.address}</p>
+                </div>
+                <div className="flex items-center gap-2">
+                    <p>
                         <b>Date & Time: </b>
                     </p>
                     <p>
@@ -67,9 +73,9 @@ const ViewBill = () => {
                 <thead>
                     <tr className="border-black border">
                         <th className="w-1/3 py-2 border-r border-black">Item</th>
+                        <th className="py-2 border-r border-black w-[10%]">SKU No</th>
                         <th className="py-2 border-r border-black w-[6.7%]">Quantity</th>
                         <th className="py-2 border-r border-black w-[7.3%]">Unit</th>
-                        <th className="py-2 border-r border-black w-[10%]">Specification</th>
                         <th className="py-2 border-r border-black w-[6.5%]">Price</th>
                         <th className="py-2 border-r border-black w-[6.5%]">GST</th>
                         <th className="py-2 border-r border-black w-[6.5%]">GST Rs.</th>
@@ -83,28 +89,24 @@ const ViewBill = () => {
                             key={index + "" + Math.random()}
                         >
                             <td className="border-r py-1 border-black">{row.item}</td>
+                            <td className="border-r py-1 border-black">{row.sku}</td>
                             <td className="border-r py-1 border-black">{row.quantity}</td>
                             <td className="border-r py-1 border-black">{row.unit}</td>
-                            <td className="border-r py-1 border-black">{row.specification}</td>
-                            <td className="border-r py-1 border-black">{row.value}</td>
+                            <td className="border-r py-1 border-black">{parseRupee(row.value)}</td>
                             <td className="border-r py-1 border-black">{row.gst}</td>
-                            <td className="border-r py-1 border-black">{row.gstRs}</td>
-                            <td className="border-r py-1 border-black">{row.total}</td>
+                            <td className="border-r py-1 border-black">{parseRupee(row.gstRs)}</td>
+                            <td className="border-r py-1 border-black">{parseRupee(row.total)}</td>
                         </tr>
                     ))}
-                </tbody>
-            </table>
-            <table className="w-full border border-t-0 border-black">
-                <tbody>
                     <tr className="text-center font-bold">
-                        <td className="w-1/3 py-1">Sub total</td>
-                        <td className="w-[6.7%] py-1">{bill?.subTotal?.quantity}</td>
+                        <td className="w-1/3 py-1 ">Sub total</td>
+                        <td className="w-[10%] py-1 "></td>
+                        <td className="w-[6.7%] py-1 ">{bill.subTotal?.quantity}</td>
                         <td className="w-[7.3%] py-1"></td>
-                        <td className="w-[10%] py-1"></td>
-                        <td className="w-[6.5%] py-1">{bill?.subTotal?.value}</td>
+                        <td className="w-[6.5%] py-1">{formatRupee(bill.subTotal?.value)}</td>
                         <td className="w-[6.5%] py-1"></td>
-                        <td className="w-[6.5%] py-1">{bill?.subTotal?.gstRs}</td>
-                        <td className="w-[6.5%] py-1">{bill?.subTotal?.total}</td>
+                        <td className="w-[6.5%] py-1">{formatRupee(bill.subTotal?.gstRs)}</td>
+                        <td className="w-[6.5%] py-1">{formatRupee(bill.subTotal?.total)}</td>
                     </tr>
                     <tr className="text-center font-bold border-t border-black">
                         <td className="w-1/3 py-1">
@@ -113,20 +115,20 @@ const ViewBill = () => {
                         <td className="w-[6.7%] py-1"></td>
                         <td className="w-[7.3%] py-1"></td>
                         <td className="w-[10%] py-1"></td>
-                        <td className="w-[6.5%] py-1">{bill?.delivery?.value}</td>
-                        <td className="w-[6.5%] py-1">{bill?.delivery?.gst}</td>
-                        <td className="w-[6.5%] py-1">{bill?.delivery?.gstRs}</td>
-                        <td className="w-[6.5%] py-1">{bill?.delivery?.total}</td>
+                        <td className="w-[6.5%] py-1">{formatRupee(bill.delivery?.value)}</td>
+                        <td className="w-[6.5%] py-1">{bill.delivery?.gst}</td>
+                        <td className="w-[6.5%] py-1">{formatRupee(bill.delivery?.gstRs)}</td>
+                        <td className="w-[6.5%] py-1">{formatRupee(bill.delivery?.total)}</td>
                     </tr>
                     <tr className="text-center font-bold border-t border-black">
                         <td className="w-1/3 py-1">Grand Total</td>
                         <td className="w-[6.7%] py-1"></td>
                         <td className="w-[7.3%] py-1"></td>
                         <td className="w-[10%] py-1"></td>
-                        <td className="w-[6.5%] py-1">{bill?.grandTotal?.value}</td>
+                        <td className="w-[6.5%] py-1">{formatRupee(bill.grandTotal?.value)}</td>
                         <td className="w-[6.5%] py-1"></td>
-                        <td className="w-[6.5%] py-1">{bill?.grandTotal?.gstRs}</td>
-                        <td className="w-[6.5%] py-1">{bill?.grandTotal?.total}</td>
+                        <td className="w-[6.5%] py-1">{formatRupee(bill.grandTotal?.gstRs)}</td>
+                        <td className="w-[6.5%] py-1">{formatRupee(bill.grandTotal?.total)}</td>
                     </tr>
                 </tbody>
             </table>

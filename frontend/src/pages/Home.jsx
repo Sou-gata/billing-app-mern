@@ -1,16 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { v4 as uuid } from "uuid";
-import { Input, DatePicker, message } from "antd";
+import { Input, DatePicker, message, TimePicker } from "antd";
 import Row from "../components/Row";
 import Bill from "./Bill";
-import { formatDate, formatTime } from "../utils";
 
 import { usePDF } from "@react-pdf/renderer";
 import axios from "axios";
 import dayjs from "dayjs";
+import { baseBillsUrl, numberToWord, parseRupee } from "../utils";
 
-const Inputs = () => {
+const Home = () => {
     const [visible, setVisible] = useState(false);
 
     const addRow = useRef(0);
@@ -79,9 +79,8 @@ const Inputs = () => {
         });
         setVisible(false);
     }, [subTotal, delivery]);
-
     const [date, setDate] = useState(new Date());
-    const [partyDetails, setPartyDetails] = useState({ name: "", mobile: "" });
+    const [partyDetails, setPartyDetails] = useState({ name: "", mobile: "", address: "" });
     const [instance, updateInstance] = usePDF({
         document: (
             <Bill
@@ -90,7 +89,7 @@ const Inputs = () => {
                 finalTotal={finalTotal}
                 delivery={delivery}
                 date={date}
-                partyDetails={partyDetails.name}
+                partyDetails={partyDetails}
             />
         ),
     });
@@ -126,11 +125,10 @@ const Inputs = () => {
                 return;
             }
             let d = new Date(date);
-            d.setHours(date.getHours());
-            d.setMinutes(date.getMinutes());
-            const a = await axios.post("http://localhost:7684/api/v1/bills/add", {
+            const a = await axios.post(baseBillsUrl + "/add", {
                 mobile: partyDetails.mobile,
                 name: partyDetails.name,
+                address: partyDetails.address,
                 date: d,
                 rows,
                 subTotal,
@@ -152,7 +150,7 @@ const Inputs = () => {
                     <p>Party details:</p>
                     <Input
                         style={{
-                            width: 300,
+                            width: 200,
                         }}
                         placeholder="Party details"
                         value={partyDetails.name}
@@ -167,7 +165,7 @@ const Inputs = () => {
                     <p>Mobile:</p>
                     <Input
                         style={{
-                            width: 250,
+                            width: 200,
                         }}
                         placeholder="Mobile number"
                         value={partyDetails.mobile}
@@ -185,24 +183,56 @@ const Inputs = () => {
                     />
                 </div>
                 <div className="flex justify-center items-center gap-5">
-                    <p>Select billing date:</p>
+                    <p>Address:</p>
+                    <Input
+                        style={{
+                            width: 250,
+                        }}
+                        placeholder="Address"
+                        value={partyDetails.address}
+                        onChange={(e) => {
+                            setPartyDetails((prev) => {
+                                return { ...prev, address: e.target.value };
+                            });
+                        }}
+                    />
+                </div>
+                <div className="flex justify-center items-center gap-5">
+                    <p>Billing date & time:</p>
                     <DatePicker
                         value={dayjs(date)}
                         onChange={(e) => {
                             if (e?.$d) {
+                                let oldH = date.getHours();
+                                let oldM = date.getMinutes();
+                                let oldS = date.getSeconds();
                                 let d = new Date(e.$d);
-                                d.setHours(date.getHours());
-                                d.setMinutes(date.getMinutes());
+                                d.setHours(oldH);
+                                d.setMinutes(oldM);
+                                d.setSeconds(oldS);
                                 setDate(d);
                             }
                         }}
+                    />
+                    <TimePicker
+                        onChange={(e) => {
+                            let h = e.$H;
+                            let m = e.$m;
+                            let d = new Date(date);
+                            d.setHours(h);
+                            d.setMinutes(m);
+                            setDate(d);
+                        }}
+                        value={dayjs(`${date.getHours()}:${date.getMinutes()}`, "HH:mm")}
+                        format="h:mm a"
+                        use12Hours
                     />
                 </div>
             </div>
             <div className="flex justify-around my-2 font-bold text-center">
                 <p className="w-12">SL</p>
                 <p className="w-[300px]">Item</p>
-                <p className="w-[120px]">Specification</p>
+                <p className="w-[120px]">SKU No</p>
                 <p className="w-[100px]">Unit</p>
                 <p className="w-[100px]">quantity</p>
                 <p className="w-[100px]">Rate</p>
@@ -243,7 +273,7 @@ const Inputs = () => {
             </div>
             <div className="flex justify-around items-center  font-bold text-center border mt-[-0.5px] border-gray-300 py-2">
                 <p className="w-12"></p>
-                <p className="w-[300px]">Packing & Forwarding UP TO KOLKATA DELIVERY POINT</p>
+                <p className="w-[300px]">Packing & Forwarding Charges</p>
                 <p className="w-[120px]"></p>
                 <p className="w-[100px]"></p>
                 <p className="w-[100px]"></p>
@@ -292,8 +322,8 @@ const Inputs = () => {
                         type="number"
                     />
                 </div>
-                <p className="w-[100px]">{delivery.gstRs}</p>
-                <p className="w-[100px]">{delivery.total}</p>
+                <p className="w-[100px]">{parseRupee(delivery.gstRs)}</p>
+                <p className="w-[100px]">{parseRupee(delivery.total)}</p>
                 <p className="w-5"></p>
             </div>
             <div className="flex justify-around font-bold text-center border border-gray-300 mt-[-1px] py-2">
@@ -332,7 +362,7 @@ const Inputs = () => {
                                         finalTotal={finalTotal}
                                         delivery={delivery}
                                         date={d}
-                                        partyDetails={partyDetails.name}
+                                        partyDetails={partyDetails}
                                     />
                                 );
                                 setVisible(true);
@@ -344,7 +374,7 @@ const Inputs = () => {
                                     finalTotal={finalTotal}
                                     delivery={delivery}
                                     date={d}
-                                    partyDetails={partyDetails.name}
+                                    partyDetails={partyDetails}
                                 />
                             );
                         }}
@@ -396,4 +426,4 @@ const Inputs = () => {
     );
 };
 
-export default Inputs;
+export default Home;
