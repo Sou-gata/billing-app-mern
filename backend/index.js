@@ -34,7 +34,8 @@ app.post("*", (req, res) => {
 require("./db/connectDB")()
     .then(() => {
         app.listen(PORT, () => {
-            console.log(`⚙️  Server is running on http://localhost:${PORT}`);
+            console.log(`\n⚙️  Server is running on http://localhost:${PORT}\n`);
+            console.log("Note: Don't close this window ☠️❌\n");
             require("child_process").exec(`start http://localhost:${PORT}/`);
         });
     })

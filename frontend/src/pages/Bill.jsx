@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
-import { formatDate, formatTime, parseRupee } from "../utils";
+import { formatDate, formatTime, numberToWord, parseRupee, rupeeToWord } from "../utils";
 
 // Create styles
 const styles = StyleSheet.create({
@@ -171,11 +171,13 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                     <View style={[styles.boxes, { width: 59 }]}>
                         <Text style={{ fontSize: 10 }}>GST Rs.</Text>
                     </View>
-                    <View style={[styles.boxes, { width: 64, borderLeftWidth: 0 }]}>
+                    <View style={[styles.boxes, { width: 64, borderRightWidth: 0 }]}>
                         <Text style={{ fontSize: 10 }}>Total</Text>
                     </View>
                 </View>
-                <View style={{ width: "100%", borderWidth: 1, marginTop: -1 }}>
+                <View
+                    style={{ width: "100%", borderWidth: 1, borderBottomWidth: 0, marginTop: -1 }}
+                >
                     {data.rows?.map((row, index) => (
                         <View
                             key={index}
@@ -226,6 +228,7 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                         flexDirection: "row",
                         alignItems: "center",
                         borderWidth: 1,
+                        borderTopWidth: 0,
                         marginTop: -1,
                     }}
                 >
@@ -333,7 +336,7 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                         <Text style={{ fontSize: 10 }}>{parseRupee(data.finalTotal.total)}</Text>
                     </View>
                 </View>
-                {/* <View
+                <View
                     style={{
                         flexDirection: "row",
                         alignItems: "center",
@@ -344,15 +347,20 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                         marginTop: -1,
                     }}
                 >
-                    <View style={[styles.totalBoxs, { width: 125 }]}>
-                        <Text style={{ fontSize: 11 }}>Payble amount in word:</Text>
+                    <View
+                        style={[
+                            styles.totalBoxs,
+                            { width: 205, alignItems: "center", textTransform: "uppercase" },
+                        ]}
+                    >
+                        <Text style={{ fontSize: 11 }}>Payble amount in word</Text>
                     </View>
-                    <View style={[styles.totalBoxs, { width: 459, textAlign: "left" }]}>
+                    <View style={[styles.totalBoxs, { width: 380, alignItems: "flex-end" }]}>
                         <Text style={{ fontSize: 10 }}>
-                            {numberToWord(data.finalTotal.total)} only
+                            {rupeeToWord(data.finalTotal.total)} only
                         </Text>
                     </View>
-                </View> */}
+                </View>
                 <View
                     style={{
                         padding: 10,

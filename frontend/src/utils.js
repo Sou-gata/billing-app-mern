@@ -37,8 +37,7 @@ export const formatRupee = (num = 0) => {
     }).format(val);
 };
 
-export const numberToWord = (num) => {
-    console.log(num);
+export const numberToWord = (num = 0) => {
     const a = [
         "",
         "one",
@@ -61,7 +60,18 @@ export const numberToWord = (num) => {
         "eighteen",
         "nineteen",
     ];
-    const b = ["", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+    const b = [
+        "",
+        "",
+        "twenty",
+        "thirty",
+        "forty",
+        "fifty",
+        "sixty",
+        "seventy",
+        "eighty",
+        "ninety",
+    ];
     num = parseInt(num).toString();
     if (num.length > 9) {
         return "overflow";
@@ -71,13 +81,60 @@ export const numberToWord = (num) => {
         .match(/^(\d{2})(\d{2})(\d{2})(\d{1})(\d{2})$/);
     if (!n) return;
     let str = "";
-    str += n[1] != 0 ? (a[parseInt(n[1])] || b[n[1][0]] + " " + a[n[1][1]]) + " crore " : "";
-    str += n[2] != 0 ? (a[parseInt(n[2])] || b[n[2][0]] + " " + a[n[2][1]]) + " lakh " : "";
-    str += n[3] != 0 ? (a[parseInt(n[3])] || b[n[3][0]] + " " + a[n[3][1]]) + " thousand " : "";
-    str += n[4] != 0 ? (a[parseInt(n[4])] || b[n[4][0]] + " " + a[n[4][1]]) + " hundred " : "";
-    str +=
-        n[5] != 0
-            ? (str != "" ? "and " : "") + (a[parseInt(n[5])] || b[n[5][0]] + " " + a[n[5][1]])
-            : "";
+    if (n[1] != 0 && n[1] != "00") {
+        if (a[parseInt(n[1])]) {
+            str += a[parseInt(n[1])];
+        } else {
+            str += b[parseInt(n[1][0])] + " " + a[parseInt(n[1][1])];
+        }
+        str += " crore ";
+    }
+    if (n[2] != 0 && n[2] != "00") {
+        if (a[parseInt(n[2])]) {
+            str += a[parseInt(n[2])];
+        } else {
+            str += b[parseInt(n[2][0])] + " " + a[parseInt(n[2][1])];
+        }
+        str += " lakh ";
+    }
+    if (n[3] != 0 && n[3] != "00") {
+        if (a[parseInt(n[3])]) {
+            str += a[parseInt(n[3])];
+        } else {
+            str += b[parseInt(n[3][0])] + " " + a[parseInt(n[3][1])];
+        }
+        str += " thousand ";
+    }
+    if (n[4] != 0 && n[4] != "00") {
+        if (a[parseInt(n[4])]) {
+            str += a[parseInt(n[4])];
+        } else {
+            str += b[parseInt(n[4][0])] + " " + a[parseInt(n[4][1])];
+        }
+        str += " hundred ";
+    }
+    if (n[5] != 0 && n[5] != "00") {
+        if (a[parseInt(n[5])]) {
+            str += a[parseInt(n[5])];
+        } else {
+            str += b[parseInt(n[5][0])] + " " + a[parseInt(n[5][1])];
+        }
+    }
     return str.trim();
 };
+
+export function rupeeToWord(num = 0) {
+    let main = parseRupee(num);
+    main = main.split(".");
+    let final = "";
+    if (main.length >= 2) {
+        final += numberToWord(main[0]) + " rupees ";
+        if (main[1] != "00" && main[1] != 0) {
+            final += numberToWord(main[1]) + " paisa";
+        }
+    } else {
+        final += numberToWord(main[0]) + " rupees";
+    }
+    final = final.charAt(0).toUpperCase() + final.slice(1);
+    return final.trim();
+}

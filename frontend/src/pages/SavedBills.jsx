@@ -289,26 +289,34 @@ const SavedBills = () => {
                                         </Link>
                                         <button
                                             onClick={() => {
+                                                let partyDetails = {
+                                                    name: bill.name,
+                                                    mobile: bill.mobile,
+                                                    address: bill.address,
+                                                };
+                                                bill.subTotal.quantity = bill.subTotal.qty;
+                                                let d = new Date(bill.date);
                                                 setTimeout(() => {
-                                                    let d = new Date(bill.date);
-                                                    bill.subTotal.quantity = bill.subTotal.qty;
-                                                    let partyDetails = {
-                                                        name: bill.name,
-                                                        mobile: bill.mobile,
-                                                        address: bill.address,
-                                                    };
-                                                    updateInstance(
-                                                        <Bill
-                                                            rows={bill.rows}
-                                                            subTotal={bill.subTotal}
-                                                            finalTotal={bill.grandTotal}
-                                                            delivery={bill.delivery}
-                                                            date={d}
-                                                            partyDetails={partyDetails}
-                                                        />
-                                                    );
+                                                    // <Bill
+                                                    //     rows={bill.rows}
+                                                    //     subTotal={bill.subTotal}
+                                                    //     finalTotal={bill.grandTotal}
+                                                    //     delivery={bill.delivery}
+                                                    //     date={d}
+                                                    //     partyDetails={partyDetails}
+                                                    // />;
                                                     setIsClicked(true);
                                                 }, 500);
+                                                updateInstance(
+                                                    <Bill
+                                                        rows={bill.rows}
+                                                        subTotal={bill.subTotal}
+                                                        finalTotal={bill.grandTotal}
+                                                        delivery={bill.delivery}
+                                                        date={d}
+                                                        partyDetails={partyDetails}
+                                                    />
+                                                );
                                             }}
                                             className="bg-blue-500 p-1 rounded-md cursor-pointer hover:bg-blue-700"
                                         >
