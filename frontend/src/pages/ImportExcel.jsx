@@ -2,7 +2,7 @@ import { useState } from "react";
 import { UploadOutlined } from "@ant-design/icons";
 import { Button, message, Upload, Select, Modal } from "antd";
 import axios from "axios";
-import { baseProductsUrl } from "../utils";
+import { baseProductsUrl, pad } from "../utils";
 
 const ImportExcel = () => {
     const [uploading, setUploading] = useState(false);
@@ -14,10 +14,11 @@ const ImportExcel = () => {
         found: false,
     });
 
-    const pad = (n) => (n < 10 ? "0" + n : n);
     const deleteAll = async () => {
         try {
-            const res = await axios.delete(baseProductsUrl + "/delete/all");
+            const res = await axios.delete(baseProductsUrl + "/delete/all", {
+                withCredentials: true,
+            });
             return res.data;
         } catch (error) {}
     };
@@ -31,15 +32,15 @@ const ImportExcel = () => {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
+                withCredentials: true,
             });
             if (res.data?.success) {
                 setFileList([]);
                 message.success("upload successfully.");
             } else {
-                message.error(res.data.message);
+                message.error(res.data?.message);
             }
         } catch (error) {
-            console.log(error);
             message.error(error.response?.data?.errors?.errorResponse?.message || "upload failed.");
         } finally {
             setUploading(false);
@@ -57,7 +58,9 @@ const ImportExcel = () => {
             await addData();
         } else if (selected === "over") {
             try {
-                let res = await axios.get(baseProductsUrl + "/backup-present");
+                let res = await axios.get(baseProductsUrl + "/backup-present", {
+                    withCredentials: true,
+                });
                 if (res.data.success && res.data.message !== "Backup not present") {
                     let date = new Date(res.data.data.mtime);
                     let day = date.getDate();

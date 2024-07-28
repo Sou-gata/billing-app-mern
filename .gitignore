@@ -10,4 +10,4 @@ frontend/node_modules
 frontend/.gitignore
 /bun.lockb
 dist
-backend/backup_*.json
+backend/*backup*.json

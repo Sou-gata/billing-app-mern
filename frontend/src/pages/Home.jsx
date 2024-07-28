@@ -8,13 +8,15 @@ import Bill from "./Bill";
 import { usePDF } from "@react-pdf/renderer";
 import axios from "axios";
 import dayjs from "dayjs";
-import { baseBillsUrl, numberToWord, parseRupee } from "../utils";
+import { baseBillsUrl, parseRupee } from "../utils";
 
 const Home = () => {
     const [visible, setVisible] = useState(false);
 
     const addRow = useRef(0);
     const saveBill = useRef(0);
+    const billID = useRef({ id: uuid(), isSaved: false });
+
     const blankData = {
         id: uuid(),
         item: "",
@@ -120,24 +122,37 @@ const Home = () => {
 
     const handleSaveBill = async () => {
         try {
+            let d = new Date(date);
             if (!partyDetails.mobile) {
                 message.error("Mobile number is required");
                 return;
             }
-            let d = new Date(date);
-            const a = await axios.post(baseBillsUrl + "/add", {
-                mobile: partyDetails.mobile,
-                name: partyDetails.name,
-                address: partyDetails.address,
-                date: d,
-                rows,
-                subTotal,
-                delivery,
-                grandTotal: finalTotal,
-            });
-            if (a.data.success) {
+            let res;
+            let url;
+            if (billID.current.isSaved) {
+                url = baseBillsUrl + "/edit/" + billID.current.id;
+            } else {
+                url = baseBillsUrl + "/add";
+            }
+            res = await axios.post(
+                url,
+                {
+                    mobile: partyDetails.mobile,
+                    name: partyDetails.name,
+                    address: partyDetails.address,
+                    date: d,
+                    rows,
+                    subTotal,
+                    delivery,
+                    grandTotal: finalTotal,
+                },
+                { withCredentials: true }
+            );
+            if (res.data.success) {
                 message.success("Bill saved successfully");
             }
+            billID.current.isSaved = true;
+            billID.current.id = res.data.data._id;
         } catch (error) {
             message.error(error.response?.data?.message || error.message || "Error in saving bill");
         }
@@ -159,6 +174,7 @@ const Home = () => {
                                 return { ...prev, name: e.target.value };
                             });
                         }}
+                        name="name"
                     />
                 </div>
                 <div className="flex justify-center items-center gap-5">
@@ -180,6 +196,7 @@ const Home = () => {
                                 };
                             });
                         }}
+                        name="mobile"
                     />
                 </div>
                 <div className="flex justify-center items-center gap-5">
@@ -195,6 +212,7 @@ const Home = () => {
                                 return { ...prev, address: e.target.value };
                             });
                         }}
+                        name="address"
                     />
                 </div>
                 <div className="flex justify-center items-center gap-5">
@@ -388,6 +406,7 @@ const Home = () => {
                         href={instance.url}
                         download={uuid() + ".pdf"}
                         onClick={() => {
+                            saveBill.current.click();
                             window.open(instance.url, "PRINT");
                         }}
                     >

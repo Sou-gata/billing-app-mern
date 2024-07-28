@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Page, Text, View, Document, StyleSheet, Image } from "@react-pdf/renderer";
-import { formatDate, formatTime, numberToWord, parseRupee, rupeeToWord } from "../utils";
+import { approxRupee, formatDate, formatTime, parseRupee, rupeeToWord } from "../utils";
 
 // Create styles
 const styles = StyleSheet.create({
@@ -353,11 +353,36 @@ const MyDocument = ({ rows, subTotal, finalTotal, delivery, date, partyDetails }
                             { width: 205, alignItems: "center", textTransform: "uppercase" },
                         ]}
                     >
+                        <Text style={{ fontSize: 11 }}>Payble amount</Text>
+                    </View>
+                    <View style={[styles.totalBoxs, { width: 380, alignItems: "flex-end" }]}>
+                        <Text style={{ fontSize: 10 }}>
+                            {approxRupee(data.finalTotal?.total || 0)}
+                        </Text>
+                    </View>
+                </View>
+                <View
+                    style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        paddingHorizontal: 5,
+                        paddingVertical: 3,
+                        borderWidth: 1,
+                        borderTopWidth: 0,
+                        marginTop: -1,
+                    }}
+                >
+                    <View
+                        style={[
+                            styles.totalBoxs,
+                            { width: 205, alignItems: "center", textTransform: "uppercase" },
+                        ]}
+                    >
                         <Text style={{ fontSize: 11 }}>Payble amount in word</Text>
                     </View>
                     <View style={[styles.totalBoxs, { width: 380, alignItems: "flex-end" }]}>
                         <Text style={{ fontSize: 10 }}>
-                            {rupeeToWord(data.finalTotal.total)} only
+                            {rupeeToWord(approxRupee(data.finalTotal?.total || 0))} only
                         </Text>
                     </View>
                 </View>

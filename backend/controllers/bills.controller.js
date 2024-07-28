@@ -128,7 +128,6 @@ const internalBackup = async (req, res) => {
             .catch((err) => {
                 return res.status(500).json(new ApiError(500, "Failed to create backup", err));
             });
-        return res.status(200).json(new ApiResponse(200, bills, "Internal backup"));
     } catch (error) {
         return res.status(500).json(new ApiError(500, error.message));
     }
@@ -174,7 +173,6 @@ const restoreInternalBackup = async (req, res) => {
 const editBill = async (req, res) => {
     const { id } = req.params;
     const data = req.body;
-
     try {
         const bill = await Bill.findByIdAndUpdate(id, data);
         if (bill) {
@@ -191,7 +189,7 @@ const externalBackup = async (req, res) => {
     const fs = require("fs/promises");
     const time = Date.now();
     try {
-        const bills = await Bill.find().select("-__v -_id -rows._id");
+        const bills = await Bill.find().select("-__v");
         if (bills.length === 0) return res.status(400).json(new ApiError(400, "No data found"));
         let file = path.join(dir, "bills_backup_" + time + ".json");
         fs.writeFile(file, JSON.stringify(bills))
@@ -200,7 +198,7 @@ const externalBackup = async (req, res) => {
             })
             .finally(() => {
                 setTimeout(() => {
-                    fs.unlink(path.join(dir, "bills_backup_" + time + ".json"));
+                    fs.unlink(file);
                 }, 500);
             });
     } catch (error) {

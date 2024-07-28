@@ -14,23 +14,8 @@ file = file[file.length - 1];
 const dir = file == "index.js" ? __dirname : path.join(__dirname, "..");
 
 const addProduct = async (req, res) => {
-    const {
-        value,
-        unit,
-        quantity,
-        cp,
-        amount,
-        location,
-        entry,
-        group,
-        category,
-        gst,
-        hsn,
-        brand,
-        specification,
-        id,
-        sku,
-    } = req.body;
+    const createdBy = req.user._id;
+    const { value, unit, quantity, cp, gst, sku } = req.body;
     if (!value) {
         return res.status(400).json(new ApiError(400, "Please enter item name"));
     } else if (!cp) {
@@ -46,17 +31,8 @@ const addProduct = async (req, res) => {
                 unit,
                 quantity,
                 cp,
-                amount,
-                location,
-                entry,
-                group,
-                category,
                 gst,
-                hsn,
-                brand,
-                specification,
-                id,
-                sku,
+                createdBy,
             });
             return res
                 .status(201)
@@ -85,7 +61,7 @@ const getSingleProduct = async (req, res) => {
         return res.status(400).json(new ApiError(400, "Invalid product ID"));
     }
     try {
-        const product = await Products.findById(id);
+        const product = await Products.findById(id).populate("updatedBy").populate("createdBy");
         if (!product) {
             return res.status(404).json(new ApiError(404, "Product not found"));
         } else {
@@ -98,25 +74,9 @@ const getSingleProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
     const { mid } = req.params;
-    const {
-        sl,
-        value,
-        unit,
-        quantity,
-        cp,
-        amount,
-        location,
-        date,
-        entry,
-        group,
-        category,
-        gst,
-        hsn,
-        brand,
-        specification,
-        id,
-        sku,
-    } = req.body;
+    const updatedBy = req.user._id;
+
+    const { value, unit, quantity, cp, gst, sku } = req.body;
     if (!mid) {
         return res.status(400).json(new ApiError(400, "Please provide product ID"));
     }
@@ -124,29 +84,15 @@ const updateProduct = async (req, res) => {
         return res.status(400).json(new ApiError(400, "Invalid product ID"));
     }
     try {
-        const product = await Products.findByIdAndUpdate(
-            mid,
-            {
-                sl,
-                value,
-                unit,
-                quantity,
-                cp,
-                amount,
-                location,
-                date,
-                entry,
-                group,
-                category,
-                gst,
-                hsn,
-                brand,
-                specification,
-                id,
-                sku,
-            },
-            { new: true }
-        );
+        const product = await Products.findByIdAndUpdate(mid, {
+            value,
+            unit,
+            quantity,
+            cp,
+            gst,
+            sku,
+            updatedBy,
+        });
         if (!product) {
             return res.status(404).json(new ApiError(404, "Product not found"));
         } else {
@@ -301,6 +247,7 @@ const backup = async (req, res) => {
 };
 
 const backupJson = async (req, res) => {
+    console.log("Backup JSON");
     const fs = require("fs/promises");
     try {
         const products = await Products.find().select("-__v -_id");

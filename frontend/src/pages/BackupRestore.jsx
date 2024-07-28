@@ -54,7 +54,7 @@ const BackupRestore = () => {
     const handleBackup = async () => {
         if (backup.products.method === "internal") {
             try {
-                const res = await axios.get(baseProductsUrl + "/backup");
+                const res = await axios.get(baseProductsUrl + "/backup", { withCredentials: true });
                 if (res.data.success) {
                     message.success("Backup successful");
                 } else {
@@ -66,17 +66,19 @@ const BackupRestore = () => {
         } else if (backup.products.method === "external") {
             if (backup.products.type === "json") {
                 try {
-                    axios.get(baseProductsUrl + "/backup/json").then((resData) => {
-                        const downloadUrl = window.URL.createObjectURL(
-                            new Blob([JSON.stringify(resData.data)])
-                        );
-                        const link = document.createElement("a");
-                        link.href = downloadUrl;
-                        link.setAttribute("download", "backup.json");
-                        document.body.appendChild(link);
-                        link.click();
-                        link.remove();
-                    });
+                    axios
+                        .get(baseProductsUrl + "/backup/json", { withCredentials: true })
+                        .then((resData) => {
+                            const downloadUrl = window.URL.createObjectURL(
+                                new Blob([JSON.stringify(resData.data)])
+                            );
+                            const link = document.createElement("a");
+                            link.href = downloadUrl;
+                            link.setAttribute("download", "backup.json");
+                            document.body.appendChild(link);
+                            link.click();
+                            link.remove();
+                        });
                 } catch (error) {
                     message.error(error.response?.data?.message || "Backup failed");
                 }
@@ -85,6 +87,7 @@ const BackupRestore = () => {
                     axios
                         .get(baseProductsUrl + "/backup/excel", {
                             responseType: "blob",
+                            withCredentials: true,
                         })
                         .then((resData) => {
                             const downloadUrl = window.URL.createObjectURL(
@@ -111,7 +114,9 @@ const BackupRestore = () => {
     const handleRestore = async () => {
         try {
             if (restore.products.method == "internal") {
-                const res = await axios.get(baseProductsUrl + "/restore");
+                const res = await axios.get(baseProductsUrl + "/restore", {
+                    withCredentials: true,
+                });
                 if (res.data.success) {
                     message.success("Restore successful");
                 } else {
@@ -134,6 +139,7 @@ const BackupRestore = () => {
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
+                    withCredentials: true,
                 });
                 if (res.data.success) {
                     setFileList((prev) => {
@@ -141,7 +147,7 @@ const BackupRestore = () => {
                     });
                     message.success("Restore successful");
                 } else {
-                    message.error("Restore failed");
+                    message.error(res.data?.message || "Restore failed");
                 }
             }
         } catch (error) {
@@ -150,7 +156,9 @@ const BackupRestore = () => {
     };
     const handleClear = async () => {
         try {
-            const res = await axios.delete(baseProductsUrl + "/delete/all");
+            const res = await axios.delete(baseProductsUrl + "/delete/all", {
+                withCredentials: true,
+            });
             if (res.data.success) {
                 message.success("Database cleared successfully");
             } else {
@@ -164,7 +172,9 @@ const BackupRestore = () => {
     const handleBillBackup = async () => {
         if (backup.bills.method == "internal") {
             try {
-                const res = await axios.get(baseBillsUrl + "/internal-backup");
+                const res = await axios.get(baseBillsUrl + "/internal-backup", {
+                    withCredentials: true,
+                });
                 if (res.data.success) {
                     message.success("Backup successful");
                 } else {
@@ -175,17 +185,19 @@ const BackupRestore = () => {
             }
         } else {
             try {
-                axios.get(baseBillsUrl + "/external-backup").then((resData) => {
-                    const downloadUrl = window.URL.createObjectURL(
-                        new Blob([JSON.stringify(resData.data)])
-                    );
-                    const link = document.createElement("a");
-                    link.href = downloadUrl;
-                    link.setAttribute("download", "backup_bill.json");
-                    document.body.appendChild(link);
-                    link.click();
-                    link.remove();
-                });
+                axios
+                    .get(baseBillsUrl + "/external-backup", { withCredentials: true })
+                    .then((resData) => {
+                        const downloadUrl = window.URL.createObjectURL(
+                            new Blob([JSON.stringify(resData.data)])
+                        );
+                        const link = document.createElement("a");
+                        link.href = downloadUrl;
+                        link.setAttribute("download", "backup_bill.json");
+                        document.body.appendChild(link);
+                        link.click();
+                        link.remove();
+                    });
             } catch (error) {
                 message.error(error.response?.data?.message || error.message || "Backup failed");
             }
@@ -194,14 +206,16 @@ const BackupRestore = () => {
     const handleBillRestore = async () => {
         if (restore.bills.method == "internal") {
             try {
-                const res = await axios.get(baseBillsUrl + "/restore-internal-backup");
+                const res = await axios.get(baseBillsUrl + "/restore-internal-backup", {
+                    withCredentials: true,
+                });
                 if (res.data.success) {
                     message.success("Restore successful");
                 } else {
-                    message.error("Restore failed");
+                    message.error(res.data.message || "Restore failed");
                 }
             } catch (error) {
-                message.error("Restore failed");
+                message.error(error.response?.data?.message || "Restore failed");
             }
         } else {
             if (fileList.bills.length === 0) {
@@ -217,6 +231,7 @@ const BackupRestore = () => {
                     headers: {
                         "Content-Type": "multipart/form-data",
                     },
+                    withCredentials: true,
                 });
                 if (res.data.success) {
                     setFileList((prev) => {
@@ -233,7 +248,7 @@ const BackupRestore = () => {
     };
     const handleClearBills = async () => {
         try {
-            const res = await axios.delete(baseBillsUrl + "/delete-all");
+            const res = await axios.delete(baseBillsUrl + "/delete-all", { withCredentials: true });
             if (res.data.success) {
                 message.success("Database cleared successfully");
             } else {

@@ -15,7 +15,7 @@ const ViewBill = () => {
     useEffect(() => {
         (async () => {
             try {
-                let res = await axios.get(`${baseBillsUrl}/${id}`);
+                let res = await axios.get(`${baseBillsUrl}/${id}`, { withCredentials: true });
                 if (res.data.success) {
                     res = res.data.data;
                     setBill(res);

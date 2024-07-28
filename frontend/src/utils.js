@@ -2,6 +2,7 @@ const baseUrl = "http://localhost:7684";
 const baseApiUrl = baseUrl + "/api/v1";
 export const baseProductsUrl = baseApiUrl + "/products";
 export const baseBillsUrl = baseApiUrl + "/bills";
+export const baseUserUrl = baseApiUrl + "/users";
 
 export const pad = (num) => {
     return (num < 10 ? "0" : "") + num;
@@ -21,6 +22,10 @@ export const formatTime = (date) => {
     h = h % 12;
     if (h === 0) h = 12;
     return pad(h) + ":" + pad(m) + " " + miridian;
+};
+
+export const formatDateTime = (date) => {
+    return formatDate(date) + " " + formatTime(date);
 };
 
 export const parseRupee = (num = 0) => {
@@ -137,4 +142,17 @@ export function rupeeToWord(num = 0) {
     }
     final = final.charAt(0).toUpperCase() + final.slice(1);
     return final.trim();
+}
+
+export function approxRupee(num = 0) {
+    let val = isNaN(parseFloat(num)) ? 0 : parseFloat(num);
+    let final = Math.round(val);
+    final = parseRupee(final);
+    return final;
+}
+
+export function nameToInitials(name) {
+    let initials = name.match(/\b\w/g) || [];
+    initials = ((initials.shift() || "") + (initials.pop() || "")).toUpperCase();
+    return initials;
 }

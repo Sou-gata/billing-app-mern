@@ -124,16 +124,20 @@ const EditBill = () => {
 
     const handleSave = async () => {
         try {
-            const res = await axios.put(baseBillsUrl + "/edit/" + location.state.bill._id, {
-                mobile: partyDetails.mobile,
-                name: partyDetails.name,
-                address: partyDetails.address,
-                date: new Date(date),
-                rows,
-                subTotal,
-                delivery,
-                grandTotal: finalTotal,
-            });
+            const res = await axios.put(
+                baseBillsUrl + "/edit/" + location.state.bill._id,
+                {
+                    mobile: partyDetails.mobile,
+                    name: partyDetails.name,
+                    address: partyDetails.address,
+                    date: new Date(date),
+                    rows,
+                    subTotal,
+                    delivery,
+                    grandTotal: finalTotal,
+                },
+                { withCredentials: true }
+            );
             if (res.data.success) {
                 message.success(res.data.message);
                 navigate("/saved-bills" + query);

@@ -23,7 +23,7 @@ const EditProduct = () => {
     useEffect(() => {
         (async () => {
             if (id) {
-                let temp = await axios.get(`${baseProductsUrl}/${id}`);
+                let temp = await axios.get(`${baseProductsUrl}/${id}`, { withCredentials: true });
                 temp = temp.data;
                 if (temp.success) {
                     setProduct(temp.data);
@@ -42,11 +42,13 @@ const EditProduct = () => {
             for (let key of keys) {
                 productData[key] = product[key].toString().trim().toUpperCase();
             }
-            const res = await axios.put(baseProductsUrl + "/update/" + id, productData);
+            const res = await axios.put(baseProductsUrl + "/update/" + id, productData, {
+                withCredentials: true,
+            });
             if (res.data.success) {
                 setProduct({ ...emptyProduct });
                 message.success("Product added successfully");
-                let temp = await axios.get(baseProductsUrl + "/all");
+                let temp = await axios.get(baseProductsUrl + "/all", { withCredentials: true });
                 temp = temp.data;
                 if (temp.success) {
                     setData(temp.data);

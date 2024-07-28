@@ -6,6 +6,9 @@ const Context = createContext();
 
 const ContextProvider = ({ children }) => {
     const [data, setData] = useState([]);
+    const [user, setUser] = useState(null);
+    const [users, setUsers] = useState([]);
+
     useEffect(() => {
         (async () => {
             const temp = await axios.get(baseProductsUrl + "/all");
@@ -15,7 +18,11 @@ const ContextProvider = ({ children }) => {
             }
         })();
     }, []);
-    return <Context.Provider value={{ data, setData }}>{children}</Context.Provider>;
+    return (
+        <Context.Provider value={{ data, setData, user, setUser, users, setUsers }}>
+            {children}
+        </Context.Provider>
+    );
 };
 
 export default ContextProvider;

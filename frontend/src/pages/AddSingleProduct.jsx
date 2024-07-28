@@ -19,7 +19,9 @@ const AddSingleProduct = () => {
             for (let key of keys) {
                 productData[key] = product[key].trim().toUpperCase();
             }
-            const res = await axios.post(baseProductsUrl + "/add", productData);
+            const res = await axios.post(baseProductsUrl + "/add", productData, {
+                withCredentials: true,
+            });
             if (res.data.success) {
                 setProduct({ ...emptyProduct });
                 message.success("Product added successfully");

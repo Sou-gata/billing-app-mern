@@ -30,9 +30,13 @@ const SavedBills = () => {
         if (!inf) inf = info;
         if (type == "date-range") {
             try {
-                let res = await axios.post(baseBillsUrl + "/search-date", {
-                    date: [bDate[0].$d, bDate[1].$d],
-                });
+                let res = await axios.post(
+                    baseBillsUrl + "/search-date",
+                    {
+                        date: [bDate[0].$d, bDate[1].$d],
+                    },
+                    { withCredentials: true }
+                );
                 if (res.data.success) {
                     res = res.data.data;
                     setBills(res);
@@ -42,9 +46,13 @@ const SavedBills = () => {
             }
         } else if (type == "date") {
             try {
-                let res = await axios.post(baseBillsUrl + "/search-date", {
-                    date: [bDate[0].$d, bDate[1].$d],
-                });
+                let res = await axios.post(
+                    baseBillsUrl + "/search-date",
+                    {
+                        date: [bDate[0].$d, bDate[1].$d],
+                    },
+                    { withCredentials: true }
+                );
                 if (res.data.success) {
                     res = res.data.data;
                     setBills(res);
@@ -54,9 +62,13 @@ const SavedBills = () => {
             }
         } else if (type == "mobile") {
             try {
-                let res = await axios.post(baseBillsUrl + "/search-mobile", {
-                    mobile: inf.mobile,
-                });
+                let res = await axios.post(
+                    baseBillsUrl + "/search-mobile",
+                    {
+                        mobile: inf.mobile,
+                    },
+                    { withCredentials: true }
+                );
                 if (res.data.success) {
                     res = res.data.data;
                     setBills(res);
@@ -66,9 +78,13 @@ const SavedBills = () => {
             }
         } else if (type == "name") {
             try {
-                let res = await axios.post(baseBillsUrl + "/search-name", {
-                    name: inf.name.toLowerCase(),
-                });
+                let res = await axios.post(
+                    baseBillsUrl + "/search-name",
+                    {
+                        name: inf.name.toLowerCase(),
+                    },
+                    { withCredentials: true }
+                );
                 if (res.data.success) {
                     res = res.data.data;
                     setBills(res);
@@ -363,7 +379,9 @@ const SavedBills = () => {
                 onOk={async () => {
                     try {
                         setIsOpen({ state: false, id: "" });
-                        let res = await axios.delete(`${baseBillsUrl}/delete/${isOpen.id}`);
+                        let res = await axios.delete(`${baseBillsUrl}/delete/${isOpen.id}`, {
+                            withCredentials: true,
+                        });
                         if (res.data.success) {
                             searchBills();
                             message.success("Bill deleted successfully");

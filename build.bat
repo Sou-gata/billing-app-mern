@@ -15,6 +15,9 @@ echo\
 echo Copying builds...
 mkdir "dist"
 copy backend\dist\index.js dist\index.js>nul
+copy backend\.env dist\.env>nul
+mkdir dist\lib\binding\napi-v3
+copy backend\node_modules\bcrypt\lib\binding\napi-v3\bcrypt_lib.node dist\lib\binding\napi-v3\bcrypt_lib.node>nul
 copy backend\run.bat dist\run.bat>nul
 echo {"name": "maharaja_billing","main": "index.js","license": "ISC", "scripts": {"start": "node index.js"},"author": "Sougata Talukdar"} > dist\package.json
 xcopy /isvy frontend\dist dist\public>nul

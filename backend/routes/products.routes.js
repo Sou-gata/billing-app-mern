@@ -21,25 +21,26 @@ const {
 } = require("../controllers/products.controller");
 
 const upload = require("../utils/upload");
+const { isWorker, isAdmin } = require("../middleware/auth.middleware");
 
-router.route("/add").post(addProduct);
+router.route("/add").post(isWorker, addProduct);
 router.route("/all").get(getAllProducts);
 router.route("/backup-present").get(isBackupPresent);
 
-router.route("/backup/json").get(backupJson);
-router.route("/backup/excel").get(backupXLSX);
-router.route("/backup").get(backup);
+router.route("/backup/json").get(isWorker, backupJson);
+router.route("/backup/excel").get(isWorker, backupXLSX);
+router.route("/backup").get(isWorker, backup);
 
-router.route("/restore/json").post(upload.single("file"), restoreJSON);
-router.route("/restore/excel").post(upload.single("file"), restoreXLSX);
-router.route("/restore").get(restore);
+router.route("/restore/json").post(isAdmin, upload.single("file"), restoreJSON);
+router.route("/restore/excel").post(isAdmin, upload.single("file"), restoreXLSX);
+router.route("/restore").get(isAdmin, restore);
 
 router.route("/search").post(searchProduct);
 router.route("/:id").get(getSingleProduct);
-router.route("/update/:mid").put(updateProduct);
-router.route("/delete/all").delete(deleteAllProducts);
-router.route("/delete/:id").delete(deleteProduct);
+router.route("/update/:mid").put(isWorker, updateProduct);
+router.route("/delete/all").delete(isWorker, deleteAllProducts);
+router.route("/delete/:id").delete(isWorker, deleteProduct);
 router.route("/add/all").post(addAllProduct);
-router.route("/add/excel").post(upload.single("file"), addExcelData);
+router.route("/add/excel").post(isAdmin, upload.single("file"), addExcelData);
 
 module.exports = router;

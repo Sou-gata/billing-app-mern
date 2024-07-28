@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Context } from "../data/Context";
-import { Input, Modal } from "antd";
+import { Input, message, Modal } from "antd";
 import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
 import { baseProductsUrl } from "../utils";
@@ -132,16 +132,24 @@ const AllData = () => {
                 }}
                 onOk={async () => {
                     try {
-                        let res = await axios.delete(`${baseProductsUrl}/delete/${isOpen.id}`);
+                        let res = await axios.delete(`${baseProductsUrl}/delete/${isOpen.id}`, {
+                            withCredentials: true,
+                        });
                         if (res.data.success) {
                             setIsOpen({ state: false, id: "" });
-                            let temp = await axios.get(baseProductsUrl + "/all");
-                            let tempData = temp.data;
-                            if (tempData.success) {
-                                setData(tempData.data);
+                            let temp = await axios.get(baseProductsUrl + "/all", {
+                                withCredentials: true,
+                            });
+                            if (temp.data?.success) {
+                                setData(temp.data?.data);
                             }
                         }
-                    } catch (error) {}
+                    } catch (error) {
+                        setIsOpen({ state: false, id: "" });
+                        message.error(
+                            error.response?.data?.message || error.message || "Error deleting data"
+                        );
+                    }
                 }}
                 okType="danger"
                 open={isOpen.state}
