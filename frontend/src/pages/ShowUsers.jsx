@@ -43,7 +43,9 @@ const ShowUsers = () => {
                     <tr key={user._id}>
                         <td className="capitalize border p-2">{user.name}</td>
                         <td className="border p-2">{user.mobile}</td>
-                        <td className="capitalize border p-2">{user.role}</td>
+                        <td className="capitalize border p-2">
+                            {user.role == "admin" ? "admin" : "user"}
+                        </td>
                         <td className="border p-2">{user.isActive ? "Active" : "Deactive"}</td>
                         <td className="border p-2">
                             {user.createdBy?.name

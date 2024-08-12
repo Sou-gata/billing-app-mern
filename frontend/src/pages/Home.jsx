@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { v4 as uuid } from "uuid";
-import { Input, DatePicker, message, TimePicker } from "antd";
+import { Input, DatePicker, message, TimePicker, AutoComplete } from "antd";
 import Row from "../components/Row";
 import Bill from "./Bill";
 
@@ -9,6 +9,7 @@ import { usePDF } from "@react-pdf/renderer";
 import axios from "axios";
 import dayjs from "dayjs";
 import { baseBillsUrl, parseRupee } from "../utils";
+// import { AutoFill } from "../components/AutoFill";
 
 const Home = () => {
     const [visible, setVisible] = useState(false);
@@ -52,6 +53,8 @@ const Home = () => {
         gstRs: 0,
         total: 0,
     });
+    // const [userData, setUserData] = useState([]);
+    // const [isVisible, setIsvisible] = useState(true);
     useEffect(() => {
         let quantity = 0,
             value = 0,
@@ -158,10 +161,57 @@ const Home = () => {
         }
     };
 
+    // const searchBillingDetails = async (mobile) => {
+    //     try {
+    //         if (mobile != "") {
+    //             let res = await axios.post(
+    //                 baseBillsUrl + "/get-users-by-mobile",
+    //                 {
+    //                     mobile,
+    //                 },
+    //                 { withCredentials: true }
+    //             );
+    //             if (res.data.success) {
+    //                 setUserData(res.data.data || []);
+    //             }
+    //         }
+    //     } catch (error) {}
+    // };
+
     return (
         <div className="w-[1538px]">
-            <div className="flex justify-between items-center px-5 py-3">
-                <div className="flex justify-center items-center gap-5">
+            <div className="flex justify-between items-center px-5 py-3 gap-2">
+                <div className="flex justify-center items-center gap-2 relative">
+                    <p>Mobile:</p>
+                    <Input
+                        style={{
+                            width: 200,
+                        }}
+                        placeholder="Mobile number"
+                        value={partyDetails.mobile}
+                        type="number"
+                        maxLength={10}
+                        // onFocus={() => setIsvisible(true)}
+                        onChange={(e) => {
+                            setPartyDetails((prev) => {
+                                return {
+                                    ...prev,
+                                    mobile:
+                                        e.target.value.length <= 10 ? e.target.value : prev.mobile,
+                                };
+                            });
+                            // searchBillingDetails(e.target.value);
+                        }}
+                        name="mobile"
+                    />
+                    {/* <AutoFill
+                        data={userData}
+                        isVisible={isVisible}
+                        setIsvisible={setIsvisible}
+                        setPartyDetails={setPartyDetails}
+                    /> */}
+                </div>
+                <div className="flex justify-center items-center gap-2">
                     <p>Party details:</p>
                     <Input
                         style={{
@@ -177,29 +227,7 @@ const Home = () => {
                         name="name"
                     />
                 </div>
-                <div className="flex justify-center items-center gap-5">
-                    <p>Mobile:</p>
-                    <Input
-                        style={{
-                            width: 200,
-                        }}
-                        placeholder="Mobile number"
-                        value={partyDetails.mobile}
-                        type="number"
-                        maxLength={10}
-                        onChange={(e) => {
-                            setPartyDetails((prev) => {
-                                return {
-                                    ...prev,
-                                    mobile:
-                                        e.target.value.length <= 10 ? e.target.value : prev.mobile,
-                                };
-                            });
-                        }}
-                        name="mobile"
-                    />
-                </div>
-                <div className="flex justify-center items-center gap-5">
+                <div className="flex justify-center items-center gap-2">
                     <p>Address:</p>
                     <Input
                         style={{
@@ -215,7 +243,7 @@ const Home = () => {
                         name="address"
                     />
                 </div>
-                <div className="flex justify-center items-center gap-5">
+                <div className="flex justify-center items-center gap-2">
                     <p>Billing date & time:</p>
                     <DatePicker
                         value={dayjs(date)}
@@ -372,19 +400,17 @@ const Home = () => {
                             let d = new Date(date);
                             d.setHours(date.getHours());
                             d.setMinutes(date.getMinutes());
-                            setTimeout(() => {
-                                updateInstance(
-                                    <Bill
-                                        rows={rows}
-                                        subTotal={subTotal}
-                                        finalTotal={finalTotal}
-                                        delivery={delivery}
-                                        date={d}
-                                        partyDetails={partyDetails}
-                                    />
-                                );
-                                setVisible(true);
-                            }, 500);
+                            updateInstance(
+                                <Bill
+                                    rows={rows}
+                                    subTotal={subTotal}
+                                    finalTotal={finalTotal}
+                                    delivery={delivery}
+                                    date={d}
+                                    partyDetails={partyDetails}
+                                />
+                            );
+                            setVisible(true);
                             updateInstance(
                                 <Bill
                                     rows={rows}

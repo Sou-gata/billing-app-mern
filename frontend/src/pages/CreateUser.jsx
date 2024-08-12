@@ -112,7 +112,7 @@ const CreateUser = () => {
                                     setUser({ ...user, role: e });
                                 }}
                                 options={[
-                                    { value: "worker", label: "Worker" },
+                                    { value: "worker", label: "User" },
                                     { value: "admin", label: "Admin" },
                                 ]}
                             />

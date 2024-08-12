@@ -27,8 +27,8 @@ rmdir /s /q backend\dist>nul
 cd dist
 mkdir uploads
 
-@REM call 7z a -tzip full_app ./*
+call 7z a -tzip full_app ./*
 cd ..
-@REM copy dist\full_app.zip full_app.zip>nul
-@REM rmdir /s /q dist>nul
+copy dist\full_app.zip full_app.zip>nul
+rmdir /s /q dist>nul
 echo Done.

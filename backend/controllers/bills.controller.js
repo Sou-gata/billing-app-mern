@@ -14,6 +14,7 @@ const dir = file == "index.js" ? __dirname : path.join(__dirname, "..");
 
 const addBill = async (req, res) => {
     const bill = req.body;
+    const { _id } = req.user;
 
     if (!bill) {
         return res.status(400).json(new ApiError(400, "Data is required"));
@@ -22,7 +23,7 @@ const addBill = async (req, res) => {
         return res.status(400).json(new ApiError(400, "Mobile number is required"));
     }
     try {
-        const newBill = await Bill.create(bill);
+        const newBill = await Bill.create({ ...bill, createdBy: _id });
         return res.status(200).json(new ApiResponse(200, newBill, "Bill added successfully"));
     } catch (error) {
         return res.status(500).json(new ApiError(500, error.message));
@@ -46,6 +47,7 @@ const searchByDate = async (req, res) => {
         return res.status(500).json(new ApiError(500, error.message));
     }
 };
+
 const searchByMobile = async (req, res) => {
     const { mobile } = req.body;
     if (!mobile) {
@@ -58,6 +60,7 @@ const searchByMobile = async (req, res) => {
         return res.status(500).json(new ApiError(500, error.message));
     }
 };
+
 const searchByName = async (req, res) => {
     const { name } = req.body;
     if (!name) {
@@ -172,7 +175,9 @@ const restoreInternalBackup = async (req, res) => {
 
 const editBill = async (req, res) => {
     const { id } = req.params;
-    const data = req.body;
+    let data = req.body;
+    const { _id } = req.user;
+    data = { ...data, updatedBy: _id };
     try {
         const bill = await Bill.findByIdAndUpdate(id, data);
         if (bill) {
@@ -237,6 +242,41 @@ const restoreExternalBackup = async (req, res) => {
     }
 };
 
+const getUsersByMobile = async (req, res) => {
+    const { mobile } = req.body;
+
+    if (!mobile) {
+        return res.status(400).json(new ApiError(400, "Mobile number is required"));
+    }
+    try {
+        const bills = await Bill.find({ mobile: { $regex: ".*" + mobile + ".*" } }).select(
+            "-subTotal -delivery -grandTotal -date -rows -createdAt -updatedAt -__v -_id -createdBy -updatedBy"
+        );
+
+        let uniqueMobile = new Set();
+        const uniqueDetails = [];
+        for (let i = 0; i < bills.length; i++) {
+            uniqueMobile.add(bills[i].mobile);
+        }
+        uniqueMobile = Array.from(uniqueMobile);
+        for (let i = 0; i < uniqueMobile.length; i++) {
+            for (let j = 0; j < bills.length; j++) {
+                if (bills[j].mobile == uniqueMobile[i]) {
+                    uniqueDetails.push(bills[j]);
+                    break;
+                }
+            }
+        }
+
+        return res
+            .status(200)
+            .json(new ApiResponse(200, uniqueDetails, "Bills fetched successfully"));
+    } catch (error) {
+        console.log(error);
+        return res.status(500).json(new ApiError(500, error.message));
+    }
+};
+
 module.exports = {
     addBill,
     searchByDate,
@@ -250,4 +290,5 @@ module.exports = {
     editBill,
     externalBackup,
     restoreExternalBackup,
+    getUsersByMobile,
 };

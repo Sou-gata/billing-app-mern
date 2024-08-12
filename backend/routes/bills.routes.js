@@ -14,6 +14,7 @@ const {
     editBill,
     externalBackup,
     restoreExternalBackup,
+    getUsersByMobile,
 } = require("../controllers/bills.controller");
 const upload = require("../utils/upload");
 const { isAdmin, isWorker } = require("../middleware/auth.middleware");
@@ -32,5 +33,6 @@ router.route("/:id").get(viewSingleBill);
 router.route("/delete/:id").delete(isAdmin, deleteSingle);
 router.route("/delete-all").delete(isAdmin, deleteAll);
 router.route("/edit/:id").put(isWorker, editBill);
+router.route("/get-users-by-mobile").post(isWorker, getUsersByMobile);
 
 module.exports = router;

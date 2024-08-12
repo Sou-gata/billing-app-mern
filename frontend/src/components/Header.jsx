@@ -10,7 +10,7 @@ const Header = () => {
     return (
         <div className="w-full h-16 bg-blue-500 sticky top-0 left-0 right-0 z-10 flex items-center justify-between text-white px-3">
             <Link to="/" className="text-3xl font-bold">
-                Maharaja Invoice
+                Maharaja Quotation
             </Link>
             <div className="flex gap-5">
                 <Tooltip
